@@ -150,7 +150,7 @@ open class BubbleInitialization(
             e.printStackTrace()
         }
     }
-    
+
     /// fun blurView is a method that is used to blur the bubble view.
     fun blurView(percent: Float) {
         _root?.alpha = percent

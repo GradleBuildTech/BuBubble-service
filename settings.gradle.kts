@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "bububle service"
 include(":app")
- 
+include(":example")

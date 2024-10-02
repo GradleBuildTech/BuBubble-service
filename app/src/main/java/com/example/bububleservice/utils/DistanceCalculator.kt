@@ -1,4 +1,4 @@
-package com.example.bububleservice.view.utils
+package com.example.bububleservice.utils
 
 import kotlin.math.sqrt
 import kotlin.math.pow

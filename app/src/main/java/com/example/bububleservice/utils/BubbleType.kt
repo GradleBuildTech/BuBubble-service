@@ -1,4 +1,4 @@
-package com.example.bububleservice.view.utils
+package com.example.bububleservice.utils
 
 enum class BubbleType {
     BubbleView,

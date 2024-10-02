@@ -1,4 +1,4 @@
-package com.example.bububleservice.view.utils
+package com.example.bububleservice.utils
 
 import android.content.Context
 import android.graphics.Rect

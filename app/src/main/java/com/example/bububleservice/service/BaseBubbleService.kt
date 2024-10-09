@@ -4,11 +4,13 @@ import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.IBinder
+import android.view.View
 import com.example.bububleservice.utils.ServiceInteraction
 import com.example.bububleservice.view.BubbleView
 import com.example.bububleservice.view.CloseBubbleView
 import com.example.bububleservice.view.ExpandBubbleView
 import com.example.bububleservice.view.FlowKeyboardBubbleView
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 abstract class BaseBubbleService : Service() {
@@ -25,9 +27,18 @@ abstract class BaseBubbleService : Service() {
 
     private var flowKeyboardBubble: FlowKeyboardBubbleView? = null
 
+    ///✨ BuBubbleEventData is a data class that is used to store the bubble data
+    private val bubbleStateFlow = MutableStateFlow(BuBubbleEventData())
+    var bubbleState: BuBubbleEventData
+        set(value) {
+            bubbleStateFlow.value = value
+        }
+        get() = bubbleStateFlow.value
+
     ///✨ BuBubbleBuilder is an abstract class that is used to build a bubble
     abstract fun configBubble(): BuBubbleBuilder
     abstract fun clearCachedData()
+
 
     override fun onBind(p0: Intent?): IBinder? = null
 
@@ -87,7 +98,11 @@ abstract class BaseBubbleService : Service() {
 
     ///🎈 Bubble event
     fun showBubble() {
-
+        if (bubbleState.isBubbleActivated.not() || bubbleState.isBubbleShow.not()) return
+        if (expandBubble?.root?.isShown == true) return
+        bubble?.show()
+        bubble?.updateBubbleStatus(View.VISIBLE)
+        bubbleStateFlow.value = bubbleState.copy(isBubbleShow = true, isBubbleVisible = true)
     }
 
     fun hideBubble() {
@@ -120,5 +135,4 @@ abstract class BaseBubbleService : Service() {
     fun hideFlowKeyboardBubble() {
 
     }
-
 }

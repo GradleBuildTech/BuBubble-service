@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Point
 import androidx.dynamicanimation.animation.SpringAnimation
 import com.example.bububleservice.event.BubbleListener
+import com.example.bububleservice.utils.getXYOnScreen
 import com.example.bububleservice.utils.sez
 import com.example.bububleservice.view.layout.BubbleInitialization
 import com.example.bububleservice.view.layout.BubbleLayout
@@ -25,9 +26,9 @@ class BubbleView(
     root = BubbleLayout(context)
 ) {
     ///✨ The following variables are used to store the point (position) of the bubble
-    private val prevPoint = Point( 0 , 0)
-    private val rawPointOnDown = Point( 0 , 0)
-    private val newPoint = Point( 0 , 0)
+    private val prevPoint = Point(0, 0)
+    private val rawPointOnDown = Point(0, 0)
+    private val newPoint = Point(0, 0)
     private val halfScreenWidth = sez.fullWidth / 2
 
     ///✨ The following variables are used to store the height and width of the bubble
@@ -42,7 +43,17 @@ class BubbleView(
     }
 
     fun snapToEdge() {
-//        springAnimation?.
+        springAnimation?.cancel()
+        springAnimation = null
+
+        val bubbleWidth = root?.width
+        val iconX = root?.getXYOnScreen()?.first
+
+        if (bubbleWidth == null || iconX == null) return
+
+        val isOnLeftSide = (iconX + bubbleWidth / 2) < halfScreenWidth
+        val startX: Int = iconX
+        val endX: Int = if (isOnLeftSide) 0 else sez.fullWidth - bubbleWidth
 
     }
 

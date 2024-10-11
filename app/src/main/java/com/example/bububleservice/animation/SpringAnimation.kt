@@ -7,7 +7,7 @@ import androidx.dynamicanimation.animation.SpringForce
 /// SpringAnimationHelper class
 /// This class is used to handle the spring animation
 
-class SpringAnimationHelper {
+object SpringAnimationHelper {
 
     /// Note values
     /// stiffness is the stiffness of the spring
@@ -131,8 +131,8 @@ class SpringAnimationHelper {
 
         springAnimation.addUpdateListener { _, value, _ ->
             event.onAnimationUpdatePosition(
-                x = value,
-                y = startPositionY + ((value - startPositionX) * distanceY) / distanceX
+                positionX = value,
+                positionY = startPositionY + ((value - startPositionX) * distanceY) / distanceX
             )
         }
 

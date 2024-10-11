@@ -9,7 +9,7 @@ interface  AnimationEvent {
     /// onAnimationEnd is a function that is called when the animation ends
     fun onAnimationEnd() {}
     /// onAnimationUpdate is a function that is called when the animation updates
-    fun onAnimationUpdate(float: Float) {}
+    fun onAnimationUpdate(positionX: Float) {}
     /// onAnimationUpdatePosition is a function that is called when the animation updates the position
-    fun onAnimationUpdatePosition(x: Float, y: Float) {}
+    fun onAnimationUpdatePosition(positionX: Float, positionY: Float) {}
 }

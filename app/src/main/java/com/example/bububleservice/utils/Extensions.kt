@@ -26,14 +26,14 @@ internal fun Context.canDrawOverlays(): Boolean {
 //💥 Remove navigation action
 /// updateGestureExclusion updates the gesture exclusion rect for the view
 internal fun View.updateGestureExclusion() {
-//    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
-//    val screenSize= sez.fullSize
-//
-//    exclusionRect.clear()
-//    val rect = Rect(0, 0, this.width, screenSize.height)
-//    exclusionRect.add(rect)
-//
-//    this.systemGestureExclusionRects = exclusionRect
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+    val screenSize= sez.fullSize
+
+    exclusionRect.clear()
+    val rect = Rect(0, 0, this.width, screenSize.height)
+    exclusionRect.add(rect)
+
+    this.systemGestureExclusionRects = exclusionRect
 }
 
 /// afterMeasured calls the afterMeasuredWork after the view is measured

@@ -5,6 +5,7 @@ import android.graphics.Point
 import android.os.Build
 import android.view.Gravity
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 
 ///This function is used to apply the layout parameters to the close bubble view
 fun WindowManager.LayoutParams.applyCloseBubbleViewLayoutParams() {
@@ -13,9 +14,15 @@ fun WindowManager.LayoutParams.applyCloseBubbleViewLayoutParams() {
         /// * FLAG_NOT_FOCUSABLE: This window won't ever get key input focus, so the user can not send key or other button events to it.
         /// * FLAG_LAYOUT_NO_LIMITS: Window flag: special flag to let windows be displayed on top of the status bar.
         /// * FLAG_WATCH_OUTSIDE_TOUCH: Window flag: as long as this window is visible to the user, keep the device's screen turned on and bright.
-        flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+        flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+
+        } else {
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        }
 
         width = WindowManager.LayoutParams.WRAP_CONTENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
@@ -26,17 +33,23 @@ fun WindowManager.LayoutParams.applyCloseBubbleViewLayoutParams() {
         gravity = Gravity.TOP or Gravity.START
         format = PixelFormat.TRANSLUCENT
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            type =  WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
     }
 }
 
 ///This function is used to apply the layout parameters to the bubble view
 fun WindowManager.LayoutParams.applyBubbleViewLayoutParams(startPoint: Point) {
     apply {
-        flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+
+        } else {
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        }
 
         width = WindowManager.LayoutParams.WRAP_CONTENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
@@ -47,7 +60,7 @@ fun WindowManager.LayoutParams.applyBubbleViewLayoutParams(startPoint: Point) {
         x = startPoint.x
         y = startPoint.y
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
     }
 }
@@ -55,9 +68,15 @@ fun WindowManager.LayoutParams.applyBubbleViewLayoutParams(startPoint: Point) {
 ///This function is used to apply the layout parameters to the expand bubble view
 fun WindowManager.LayoutParams.applyExpandBubbleViewLayoutParams() {
     apply {
-        flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+
+        } else {
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        }
 
         width = WindowManager.LayoutParams.MATCH_PARENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
@@ -65,7 +84,7 @@ fun WindowManager.LayoutParams.applyExpandBubbleViewLayoutParams() {
         gravity = Gravity.TOP or Gravity.START
         format = PixelFormat.TRANSLUCENT
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
     }
 }
@@ -82,7 +101,7 @@ fun WindowManager.LayoutParams.applyFlowKeyboardBubbleViewLayoutParams() {
         format = PixelFormat.TRANSLUCENT
         dimAmount = 0.5f       // default = 0.5f
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
     }
 }

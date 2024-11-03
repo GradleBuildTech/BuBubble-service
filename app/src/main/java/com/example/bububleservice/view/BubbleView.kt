@@ -12,6 +12,7 @@ import com.example.bububleservice.animation.SpringAnimationHelper
 import com.example.bububleservice.event.BubbleListener
 import com.example.bububleservice.utils.BubbleEdgeSide
 import com.example.bububleservice.utils.afterMeasured
+import com.example.bububleservice.utils.applyBubbleViewLayoutParams
 import com.example.bububleservice.utils.getXYOnScreen
 import com.example.bububleservice.utils.sez
 import com.example.bububleservice.utils.updateGestureExclusion
@@ -72,6 +73,27 @@ class BubbleView(
     }
 
     ///✨ Handle move, animation and position  of bubble
+
+
+    ///Handle new position of bubble
+    fun setPosition(x: Int, y: Int) {
+        newPoint.x = x
+        newPoint.y = y
+    }
+
+    fun updateByNewPosition(
+        inVisibleBefore: Boolean = false,
+        resetPositionY: Boolean = true
+    ) {
+        if(inVisibleBefore) {
+            root?.visibility = View.INVISIBLE
+        }
+        layoutParams?.x = newPoint.x
+        if(resetPositionY) {
+            layoutParams?.y = newPoint.y
+        }
+        update()
+    }
 
     /// snapToEdge is a function that is used to snap the bubble to the edge
     fun snapToEdge(animationComplete: (BubbleEdgeSide) -> Unit) {

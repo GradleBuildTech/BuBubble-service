@@ -111,8 +111,4 @@ class BuBubbleBuilder(
         this.isAnimateToEdgeEnabled = isAnimateToEdgeEnabled
         return this
     }
-
-
-
-
 }

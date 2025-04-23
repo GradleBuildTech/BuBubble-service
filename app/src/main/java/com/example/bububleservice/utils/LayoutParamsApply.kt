@@ -14,15 +14,10 @@ fun WindowManager.LayoutParams.applyCloseBubbleViewLayoutParams() {
         /// * FLAG_NOT_FOCUSABLE: This window won't ever get key input focus, so the user can not send key or other button events to it.
         /// * FLAG_LAYOUT_NO_LIMITS: Window flag: special flag to let windows be displayed on top of the status bar.
         /// * FLAG_WATCH_OUTSIDE_TOUCH: Window flag: as long as this window is visible to the user, keep the device's screen turned on and bright.
-        flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+        flags =
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-
-        } else {
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        }
 
         width = WindowManager.LayoutParams.WRAP_CONTENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
@@ -41,15 +36,10 @@ fun WindowManager.LayoutParams.applyCloseBubbleViewLayoutParams() {
 ///This function is used to apply the layout parameters to the bubble view
 fun WindowManager.LayoutParams.applyBubbleViewLayoutParams(startPoint: Point) {
     apply {
-        flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+        flags =
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-
-        } else {
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        }
 
         width = WindowManager.LayoutParams.WRAP_CONTENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
@@ -68,15 +58,10 @@ fun WindowManager.LayoutParams.applyBubbleViewLayoutParams(startPoint: Point) {
 ///This function is used to apply the layout parameters to the expand bubble view
 fun WindowManager.LayoutParams.applyExpandBubbleViewLayoutParams() {
     apply {
-        flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+        flags =
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-
-        } else {
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        }
 
         width = WindowManager.LayoutParams.MATCH_PARENT
         height = WindowManager.LayoutParams.WRAP_CONTENT

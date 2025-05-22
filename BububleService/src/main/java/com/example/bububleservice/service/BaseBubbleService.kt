@@ -29,7 +29,7 @@ abstract class BaseBubbleService : Service() {
 
     ///✨ BuBubbleEventData is a data class that is used to store the bubble data
     private val bubbleStateFlow = MutableStateFlow(BuBubbleEventData())
-    var bubbleState: BuBubbleEventData
+    private var bubbleState: BuBubbleEventData
         set(value) {
             bubbleStateFlow.value = value
         }

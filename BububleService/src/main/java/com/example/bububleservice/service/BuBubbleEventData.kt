@@ -4,5 +4,7 @@ package com.example.bububleservice.service
 data class BuBubbleEventData(
     val isBubbleActivated: Boolean = false,
     var isBubbleShow: Boolean = false,
-    var isBubbleVisible: Boolean = false
+    var isBubbleVisible: Boolean = false,
+
+    var isShowingFlowKeyboardBubble: Boolean = false,
 )

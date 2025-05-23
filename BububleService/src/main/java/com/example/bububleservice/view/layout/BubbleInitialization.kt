@@ -155,4 +155,12 @@ open class BubbleInitialization(
     fun blurView(percent: Float) {
         _root?.alpha = percent
     }
+
+    fun isShown(): Boolean {
+        return root?.visibility == View.VISIBLE
+    }
+
+    fun updateVisibility(isShown: Boolean) {
+        root?.visibility = if (isShown) View.VISIBLE else View.GONE
+    }
 }

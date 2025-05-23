@@ -115,6 +115,14 @@ class CloseBubbleView(
     fun isBubbleInCloseField(bubbleView: BubbleView): Boolean =
         distanceFromBubbleToCloseField(bubbleView) == 0.0F
 
+    /**
+        * This function is used to check if the bubble is in the close field
+        * It takes in a bubbleView and returns a boolean
+        * @Param bubbleView is the bubble view
+        * @Param fingerPositionX is the x position of the finger
+        * @Param fingerPositionY is the y position of the finger
+        * @return true if the bubble is in the close field
+     */
     fun tryAttractBubble(
         bubbleView: BubbleView,
         fingerPositionX: Float,

@@ -1,6 +1,8 @@
 package com.example.bububleservice.view
 
 import android.content.Context
+import com.example.bububleservice.utils.applyFlowKeyboardBubbleViewLayoutParams
+import com.example.bububleservice.utils.sez
 import com.example.bububleservice.view.layout.BubbleInitialization
 import com.example.bububleservice.view.layout.BubbleLayout
 
@@ -18,4 +20,15 @@ class FlowKeyboardBubbleView(
     containCompose = containCompose,
     root = BubbleLayout(context)
 ) {
+    init {
+        layoutParams?.applyFlowKeyboardBubbleViewLayoutParams()
+        layoutParams?.apply {
+            this.x = 0
+            this.y = sez.fullHeight - (root?.height ?: 0)
+        }
+        update()
+    }
+
+
 }
+

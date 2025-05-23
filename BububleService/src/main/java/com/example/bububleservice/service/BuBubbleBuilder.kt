@@ -6,19 +6,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.example.bububleservice.event.BubbleListener
 
-///BuBubbleBuilder is a class that takes in a context
-///It is used to build the bubble
-///It is used to build the bubble
-///Example:
-///```kotlin
-///val bubble = BuBubbleBuilder(context)
-///    .bubbleViewCompose {
-///        BubbleViewContent()
-///    }
-///    .closeBubbleViewCompose {
-///        CloseBubbleViewContent()
-///    }
-///```
+
+
+/**
+ * BuBubbleBuilder is a class that takes in a context
+ * It is used to build the bubble
+ * It is used to build the bubble
+ * Example:
+ * ```kotlin
+ * val bubble = BuBubbleBuilder(context).bubbleViewCompose {
+ *      BubbleViewContent()
+ *      }
+ *      .closeBubbleViewCompose { CloseBubbleViewContent()}
+ *      ```
+ */
 class BuBubbleBuilder(
     private val context: Context
 ) {

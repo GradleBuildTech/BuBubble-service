@@ -1,6 +1,6 @@
 package com.example.bububleservice.service
 
-class BuBubbleService: BaseBubbleService() {
+abstract class BuBubbleService: BaseBubbleService() {
     override fun configBubble(): BuBubbleBuilder {
         TODO("Not yet implemented")
     }
@@ -8,5 +8,4 @@ class BuBubbleService: BaseBubbleService() {
     override fun clearCachedData() {
         TODO("Not yet implemented")
     }
-
 }

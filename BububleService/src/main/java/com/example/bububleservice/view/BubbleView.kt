@@ -20,12 +20,16 @@ import com.example.bububleservice.view.layout.BubbleInitialization
 import com.example.bububleservice.view.layout.BubbleLayout
 import kotlin.math.abs
 
-///BubbleView is a class that extends BubbleInitialization
-///It is used to create a view that is used to show the bubble
-///It takes in a context, a containCompose, a forceDragging and a listener
-///It has a root that is a BubbleLayout
-
-///✨ BubbleView always display on the edge of the screen
+/**
+ * BubbleView is a class that extends BubbleInitialization
+ * It is used to create a view that is used to show the bubble
+ * It takes in a context and a containCompose
+ * It has a root that is a BubbleLayout
+ * @param context The context of the application
+ * @param containCompose The compose view that is used to show the bubble
+ * @param forceDragging The boolean value that is used to determine if the bubble should be dragged
+ * @param listener The listener that is used to handle the bubble events
+ */
 class BubbleView(
     context: Context,
     containCompose: Boolean,
@@ -155,12 +159,12 @@ class BubbleView(
     }
 
     /// updateUiPosition is a function that is used to update the position of the bubble
-    fun updateUiPosition(positionX: Int, positionY: Int) {
+    fun updateUiPosition(positionX: Float, positionY: Float) {
         val mIconDeltaX = positionX - rawPointOnDown.x
         val mIconDeltaY = positionY - rawPointOnDown.y
 
-        newPoint.x = prevPoint.x + mIconDeltaX
-        newPoint.y = prevPoint.y + mIconDeltaY
+        newPoint.x = prevPoint.x + mIconDeltaX.toInt()
+        newPoint.y = prevPoint.y + mIconDeltaY.toInt()
 
         /// Checking bubble in the screen
         val limitTop = 0

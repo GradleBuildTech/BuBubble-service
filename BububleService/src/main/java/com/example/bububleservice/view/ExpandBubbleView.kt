@@ -1,6 +1,8 @@
 package com.example.bububleservice.view
 
 import android.content.Context
+import android.view.View
+import com.example.bububleservice.utils.applyExpandBubbleViewLayoutParams
 import com.example.bububleservice.view.layout.BubbleInitialization
 import com.example.bububleservice.view.layout.BubbleLayout
 
@@ -18,4 +20,8 @@ class ExpandBubbleView(
     containCompose = containCompose,
     root = BubbleLayout(context)
 ) {
+    init {
+        layoutParams?.applyExpandBubbleViewLayoutParams()
+    }
+
 }

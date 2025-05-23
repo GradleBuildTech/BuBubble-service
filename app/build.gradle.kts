@@ -70,4 +70,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     //Screen easy
     implementation("io.github.torrydo:screen-easy:0.1.0")
+
+    //Implement project from path
+    implementation(project(":BububleService"))
 }

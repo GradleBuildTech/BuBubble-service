@@ -30,7 +30,7 @@ internal class ComposeLifeCycleOwner: SavedStateRegistryOwner, ViewModelStoreOwn
     private var _view: View? = null
     /// ReComposer is a private variable of type ReComposer.
     // Recomposer is a class that is responsible for managing the composition of the view.
-    private var recomposer: Recomposer? = null
+    private var recompose: Recomposer? = null
 
     /// runRecomposeScope is a private variable of type CoroutineScope.
     // CoroutineScope is a class that is responsible for managing the coroutine.
@@ -53,11 +53,11 @@ internal class ComposeLifeCycleOwner: SavedStateRegistryOwner, ViewModelStoreOwn
         runRecomposeScope?.cancel()
 
         runRecomposeScope = CoroutineScope(coroutineContext!!)
-        recomposer = Recomposer(coroutineContext!!)
-        _view?.compositionContext = recomposer
+        recompose = Recomposer(coroutineContext!!)
+        _view?.compositionContext = recompose
 
         runRecomposeScope?.launch {
-            recomposer!!.runRecomposeAndApplyChanges()
+            recompose!!.runRecomposeAndApplyChanges()
         }
 
 

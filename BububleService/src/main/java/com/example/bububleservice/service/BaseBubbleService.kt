@@ -51,12 +51,13 @@ abstract class BaseBubbleService : Service() {
     abstract fun configBubble(): BuBubbleBuilder
 
 
-
     /// Abstract function support for handle bubble event
+    abstract fun startNotificationForeground()
     abstract fun clearCachedData()
     abstract fun changeBubbleEdgeSideListener(edgeSide: BubbleEdgeSide)
     abstract fun onCheckBubbleTouchLeavesListener(x: Float, y: Float)
     abstract fun onCloseBubbleListener()
+    abstract fun refreshBubbleIconStateListener(isClearCachedData: Boolean)
 
 
     override fun onBind(p0: Intent?): IBinder? = null
@@ -68,7 +69,7 @@ abstract class BaseBubbleService : Service() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         clearCachedData()
-        if(newConfig.isScreenRound) {
+        if (newConfig.isScreenRound) {
             sez.refresh()
         }
         onCreateBubble(configBubble())
@@ -94,12 +95,19 @@ abstract class BaseBubbleService : Service() {
                 bubble!!.rootGroup?.addView(bubbleBuilder.bubbleView)
             }
 
-            if (bubbleBuilder.closeBubbleView != null) {
+            if (bubbleBuilder.closeBubbleView != null || bubbleBuilder.closeView != null) {
+                assert(bubbleBuilder.closeBubbleView != null && bubbleBuilder.closeView != null) {
+                    "You must set closeBubbleView or closeView"
+                }
                 closeBubble = CloseBubbleView(
                     context = this,
                     distanceToClose = bubbleBuilder.distanceToClose
                 )
-                closeBubble!!.rootGroup?.addView(bubbleBuilder.closeBubbleView)
+                if(bubbleBuilder.closeBubbleView != null) {
+                    closeBubble!!.rootGroup?.addView(bubbleBuilder.closeBubbleView)
+                } else if(bubbleBuilder.closeView != null) {
+                    closeBubble!!.rootGroup?.addView(bubbleBuilder.closeView)
+                }
             }
             if (bubbleBuilder.expandBubbleView != null) {
                 expandBubble = ExpandBubbleView(context = this)
@@ -115,7 +123,15 @@ abstract class BaseBubbleService : Service() {
                 lCloseBubble = closeBubble,
                 context = this,
                 isAnimatedToEdge = bubbleBuilder.isAnimateToEdgeEnabled,
-                onCloseBubbleView = { onCloseBubbleListener() }
+                onCloseBubbleView = {
+                    bubbleStateFlow.value = bubbleState.copy(
+                        isBubbleShow = false,
+                        isDisableShowBubble = true
+                    )
+                    hideBubble()
+                    onCloseBubbleListener()
+                    refreshBubbleIconStateListener(true)
+                },
             )
         }
     }
@@ -137,15 +153,15 @@ abstract class BaseBubbleService : Service() {
         bubbleStateFlow.value = bubbleState.copy(isBubbleShow = true, isBubbleVisible = true)
     }
 
-    fun hideBubble() {
-        if(bubbleState.isShowingFlowKeyboardBubble) return
+    private fun hideBubble() {
+        if (bubbleState.isShowingFlowKeyboardBubble) return
         closeBubble?.remove()
     }
 
 
     ///🎈 Expand bubble event
     fun showExpandBubble(isRemoveBubble: Boolean = false) {
-        if(isRemoveBubble) {
+        if (isRemoveBubble) {
             bubble?.remove()
             closeBubble?.remove()
         }
@@ -185,7 +201,7 @@ abstract class BaseBubbleService : Service() {
         private val context: Context,
 
         //Function Param
-        private val onCloseBubbleView: () -> Unit
+        private val onCloseBubbleView: () -> Unit,
     ) : BubbleListener {
         private var _onMove = false
         private var _fingerPositionX = 0f
@@ -199,46 +215,35 @@ abstract class BaseBubbleService : Service() {
         }
 
         override fun onFingerMove(x: Float, y: Float) {
-            if(lCloseBubble == null || lBubble == null) return
+            if (lCloseBubble == null || lBubble == null) return
             val closeBubbleFlow = closeBubble?.tryAttractBubble(lBubble, x, y) ?: false
-            if(_onMove.not()) {
-                if(x != _fingerPositionX || y != _fingerPositionY) {
+            if (_onMove.not()) {
+                if (x != _fingerPositionX || y != _fingerPositionY) {
                     _onMove = true
                     lCloseBubble.show()
                 }
             }
-            if(closeBubbleFlow.not()) {
-                lBubble.updateUiPosition(x , y)
+            if (closeBubbleFlow.not()) {
+                lBubble.updateUiPosition(x, y)
             }
         }
 
         override fun onFingerUp(x: Float, y: Float) {
-            if(lBubble == null || lCloseBubble == null) return
+            if (lBubble == null || lCloseBubble == null) return
             _onMove = false
             lCloseBubble.remove()
-            if(x == _fingerPositionX && y == _fingerPositionY) {
+            if (x == _fingerPositionX && y == _fingerPositionY) {
                 return
             }
-            if(lCloseBubble.isBubbleInCloseField(lBubble) && lCloseBubble.isFingerInCloseField(x, y)) {
-                lBubble.remove()
-                bubbleStateFlow.value = bubbleState.copy(isBubbleShow = false)
-
-                this.onCloseBubbleView()
-//                mBubble.setPosition(0, (sez.fullHeight / 2 - 40))
-//                mBubble.updateByNewPosition()
-//                bubbleStateFlow.value = bubbleState.copy( isBubbleShow = false )
-//                bubbleStateFlow.value = bubbleState.copy(showingRecommendBubble = false)
-//                bubbleStateFlow.value = bubbleState.copy(isDisableShowBubble = true)
-//
-//                hideBubble(isResetPosition = false)
-//                changeScreenShotHandlerState(isHandled = false, isDisableUiData = true)
-//                updateGalleryActionEnum(GalleryAction.NONE)
-//                onCloseBubbleView()
-//                refreshBubbleIconState(true)
-//
-//                context.showToastBubbleHidden()
+            if (lCloseBubble.isBubbleInCloseField(lBubble) && lCloseBubble.isFingerInCloseField(
+                    x,
+                    y
+                )
+            ) {
+                lBubble.setPosition(0, (sez.fullHeight / 2 - 40))
+                lBubble.updateByNewPosition()
             } else {
-                if(isAnimatedToEdge) lBubble.snapToEdge {
+                if (isAnimatedToEdge) lBubble.snapToEdge {
                     changeBubbleEdgeSideListener(it)
                 }
                 onCheckBubbleTouchLeavesListener(x, y)

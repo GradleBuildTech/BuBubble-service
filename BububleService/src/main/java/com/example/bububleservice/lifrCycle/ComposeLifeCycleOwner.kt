@@ -29,7 +29,7 @@ internal class ComposeLifeCycleOwner: SavedStateRegistryOwner, ViewModelStoreOwn
     /// _view is a private variable of type View. It is used to store the view.
     private var _view: View? = null
     /// ReComposer is a private variable of type ReComposer.
-    // Recomposer is a class that is responsible for managing the composition of the view.
+    // Recompose is a class that is responsible for managing the composition of the view.
     private var recompose: Recomposer? = null
 
     /// runRecomposeScope is a private variable of type CoroutineScope.

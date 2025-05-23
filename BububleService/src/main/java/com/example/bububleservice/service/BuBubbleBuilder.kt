@@ -2,10 +2,10 @@ package com.example.bububleservice.service
 
 import android.content.Context
 import android.graphics.Point
+import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.example.bububleservice.event.BubbleListener
-
 
 
 /**
@@ -42,6 +42,7 @@ class BuBubbleBuilder(
     internal var isBubbleDraggable: Boolean = true
 
     ///✨ Config data of closeBubbleView
+    internal var closeView: View? = null
     internal var closeBubbleView: ComposeView? = null
 
     ///📝 Distance to close the bubble
@@ -52,6 +53,7 @@ class BuBubbleBuilder(
 
     ///✨ Config data of flowKeyboardBubbleView
     internal var flowKeyboardBubbleView: ComposeView? = null
+
 
     /// Handle builder pattern
     fun bubbleViewCompose(content: @Composable () -> Unit): BuBubbleBuilder {
@@ -65,6 +67,11 @@ class BuBubbleBuilder(
         this.closeBubbleView = ComposeView(context).apply {
             setContent(content)
         }
+        return this
+    }
+
+    fun closeView(view: View): BuBubbleBuilder {
+        this.closeView = view
         return this
     }
 

@@ -12,10 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BububleService"
         tools:targetApi="31">
+        <service
+            android:name=".TestBubbleService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.BububleService">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

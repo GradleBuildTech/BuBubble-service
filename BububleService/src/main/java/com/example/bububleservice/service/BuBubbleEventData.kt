@@ -7,4 +7,5 @@ data class BuBubbleEventData(
     var isBubbleVisible: Boolean = false,
 
     var isShowingFlowKeyboardBubble: Boolean = false,
+    var isDisableShowBubble: Boolean = false,
 )

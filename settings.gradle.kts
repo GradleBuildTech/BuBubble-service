@@ -19,7 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "bububle service"
+rootProject.name = "Bub Bubble Service"
 include(":app")
-include(":example")
-include(":BububleService")
+include(":BubService")

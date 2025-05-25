@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.example.bubBubbleService.compose.TestBubbleCompose
 import com.example.bubService.event.BubbleListener
 import com.example.bubService.notification.NotificationHelper
 import com.example.bubService.service.BaseBubbleService
@@ -29,14 +28,18 @@ class TestBubbleService : BaseBubbleService() {
 
         val closeBubbleView = ImageView(this).apply {
             setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_close_bubble)).apply {
-                layoutParams = ViewGroup.LayoutParams(60, 60)
+                layoutParams = ViewGroup.LayoutParams(80, 80)
+            }
+        }
+
+        val bubbleView =ImageView(this).apply {
+            setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_flutter)).apply {
+                layoutParams = ViewGroup.LayoutParams(80, 80)
             }
         }
 
         return BuBubbleBuilder(this)
-            .bubbleViewCompose {
-                TestBubbleCompose()
-            }
+            .bubbleView(bubbleView)
             .closeView(closeBubbleView)
             .bubbleStartPoint(Point(0, 400))
             .bubbleForceDragging(true)
@@ -46,15 +49,12 @@ class TestBubbleService : BaseBubbleService() {
             .bubbleListener(
                 object : BubbleListener {
                     override fun onFingerDown(x: Float, y: Float) {
-                        TODO("Not yet implemented")
                     }
 
                     override fun onFingerMove(x: Float, y: Float) {
-                        TODO("Not yet implemented")
                     }
 
                     override fun onFingerUp(x: Float, y: Float) {
-                        TODO("Not yet implemented")
                     }
                 }
             )
@@ -71,23 +71,18 @@ class TestBubbleService : BaseBubbleService() {
     }
 
     override fun clearCachedData() {
-        TODO("Not yet implemented")
     }
 
     override fun changeBubbleEdgeSideListener(edgeSide: BubbleEdgeSide) {
-        TODO("Not yet implemented")
     }
 
     override fun onCheckBubbleTouchLeavesListener(x: Float, y: Float) {
-        TODO("Not yet implemented")
     }
 
     override fun onCloseBubbleListener() {
-        TODO("Not yet implemented")
     }
 
     override fun refreshBubbleIconStateListener(isClearCachedData: Boolean) {
-        TODO("Not yet implemented")
     }
 
 }

@@ -6,9 +6,11 @@ import android.graphics.Point
 import android.view.MotionEvent
 import android.view.View
 import androidx.dynamicanimation.animation.SpringAnimation
+import com.example.bubService.animation.SpringAnimationHelper
 import com.example.bubService.event.BubbleListener
 import com.example.bubService.utils.BubbleEdgeSide
 import com.example.bubService.utils.afterMeasured
+import com.example.bubService.utils.applyBubbleViewLayoutParams
 import com.example.bubService.utils.getXYOnScreen
 import com.example.bubService.utils.sez
 import com.example.bubService.utils.updateGestureExclusion
@@ -29,6 +31,7 @@ import kotlin.math.abs
 class BubbleView(
     context: Context,
     containCompose: Boolean,
+    startPoint: Point,
     private val forceDragging: Boolean = false,
     private val listener: BubbleListener? = null
 ) : BubbleInitialization(
@@ -54,7 +57,7 @@ class BubbleView(
 
     ///✨ The following variables are used to store the position of the bubble
     /// If don't want to drag,drop the bubble, set isDraggable to false
-    internal var isDraggable: Boolean = false
+    internal var isDraggable: Boolean = true
 
     /// Getter value
     fun isSmallBubble(): Boolean {
@@ -69,6 +72,7 @@ class BubbleView(
 
 
     init {
+        layoutParams?.applyBubbleViewLayoutParams(startPoint)
         customTouch()
     }
 
@@ -107,15 +111,19 @@ class BubbleView(
 
         val isOnLeftSide = (iconX + bubbleWidth / 2) < halfScreenWidth
         val startX: Int = iconX
-        val endX: Int = if (isOnLeftSide) 0 else sez.fullWidth - bubbleWidth
+        val endX: Int = if (isOnLeftSide) 0 else (sez.fullWidth - bubbleWidth)
 
-        springAnimation = com.example.bubService.animation.SpringAnimationHelper.startSpring(
+        springAnimation = SpringAnimationHelper.startSpring(
             startPosition = startX.toFloat(),
             finalPosition = endX.toFloat(),
             event = object : com.example.bubService.animation.AnimationEvent {
                 override fun onAnimationUpdate(positionX: Float) {
-                    layoutParams?.x = positionX.toInt()
-                    update()
+                    try {
+                        layoutParams?.x = positionX.toInt()
+                        update()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
 
                 override fun onAnimationEnd() {
@@ -134,7 +142,7 @@ class BubbleView(
         val startX: Int = root?.getXYOnScreen()?.first ?: 0
         val startY: Int = root?.getXYOnScreen()?.second ?: 0
 
-        springAnimation = com.example.bubService.animation.SpringAnimationHelper.animateToPosition(
+        springAnimation = SpringAnimationHelper.animateToPosition(
             startPositionX = startX.toFloat(),
             startPositionY = startY.toFloat(),
             finalPositionX = positionX.toFloat(),

@@ -50,7 +50,7 @@ object SpringAnimationHelper {
         startPosition: Float,
         finalPosition: Float,
 
-        event: com.example.bubService.animation.AnimationEvent,
+        event: AnimationEvent,
 
         stiffness: Float = SpringForce.STIFFNESS_LOW,
         damping: Float = SpringForce.DAMPING_RATIO_NO_BOUNCY
@@ -78,6 +78,9 @@ object SpringAnimationHelper {
         springAnimation.addEndListener() { _, _, _, _ ->
             event.onAnimationEnd()
         }
+
+        event.onAnimationStart()
+        springAnimation.start()
 
         return springAnimation
     }

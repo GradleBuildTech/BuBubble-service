@@ -5,17 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.IBinder
+import android.util.Log
 import android.view.View
 import com.example.bubService.event.BubbleListener
 import com.example.bubService.utils.BubbleEdgeSide
 import com.example.bubService.utils.ServiceInteraction
+import com.example.bubService.utils.canDrawOverlays
 import com.example.bubService.utils.sez
 import com.example.bubService.view.BubbleView
 import com.example.bubService.view.CloseBubbleView
 import com.example.bubService.view.ExpandBubbleView
 import com.example.bubService.view.FlowKeyboardBubbleView
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -63,8 +64,19 @@ abstract class BaseBubbleService : Service() {
     override fun onBind(p0: Intent?): IBinder? = null
 
     override fun onCreate() {
-        serviceScope = CoroutineScope(Dispatchers.Main)
         super.onCreate()
+        if (canDrawOverlays().not()) {
+            throw IllegalStateException(
+                "You must enable 'Draw over other apps' permission to use this service."
+            )
+        } else {
+            sez.with(this.applicationContext)
+            onCreateBubble(configBubble())
+            this._serviceInteraction = object : ServiceInteraction {
+                override fun requestStop() {
+                }
+            }
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -85,27 +97,35 @@ abstract class BaseBubbleService : Service() {
 
     private fun onCreateBubble(bubbleBuilder: BuBubbleBuilder?) {
         if (bubbleBuilder != null) {
-            if (bubbleBuilder.bubbleView != null) {
+            if (bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
+                assert(bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
+                    "You must set bubbleView or bubbleComposeView"
+                }
                 _bubble = BubbleView(
                     context = this,
                     containCompose = true,
                     listener = bubbleBuilder.listener,
-                    forceDragging = bubbleBuilder.forceDragging
+                    forceDragging = bubbleBuilder.forceDragging,
+                    startPoint = bubbleBuilder.startPoint,
                 )
-                _bubble!!.rootGroup?.addView(bubbleBuilder.bubbleView)
+                if (bubbleBuilder.bubbleComposeView != null) {
+                    _bubble!!.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
+                } else if (bubbleBuilder.bubbleView != null) {
+                    _bubble!!.rootGroup?.addView(bubbleBuilder.bubbleView)
+                }
             }
 
-            if (bubbleBuilder.closeBubbleView != null || bubbleBuilder.closeView != null) {
-                assert(bubbleBuilder.closeBubbleView != null && bubbleBuilder.closeView != null) {
+            if (bubbleBuilder.closeComposeView != null || bubbleBuilder.closeView != null) {
+                assert(bubbleBuilder.closeComposeView != null || bubbleBuilder.closeView != null) {
                     "You must set closeBubbleView or closeView"
                 }
                 _closeBubble = CloseBubbleView(
                     context = this,
                     distanceToClose = bubbleBuilder.distanceToClose
                 )
-                if(bubbleBuilder.closeBubbleView != null) {
-                    _closeBubble!!.rootGroup?.addView(bubbleBuilder.closeBubbleView)
-                } else if(bubbleBuilder.closeView != null) {
+                if (bubbleBuilder.closeComposeView != null) {
+                    _closeBubble!!.rootGroup?.addView(bubbleBuilder.closeComposeView)
+                } else if (bubbleBuilder.closeView != null) {
                     _closeBubble!!.rootGroup?.addView(bubbleBuilder.closeView)
                 }
             }
@@ -148,14 +168,15 @@ abstract class BaseBubbleService : Service() {
     fun showBubble() {
         if (bubbleState.isBubbleServiceActivated.not() || bubbleState.isBubbleShow) return
         if (_expandBubble?.root?.isShown == true) return
+        Log.d("BaseBubbleService", "showBubble: ${_bubble?.isShown()}")
         _bubble?.show()
-        _closeBubble?.show()
         _bubble?.updateBubbleStatus(View.VISIBLE)
         _bubbleStateFlow.value = bubbleState.copy(isBubbleShow = true, isBubbleVisible = true)
     }
 
     private fun hideBubble() {
         if (bubbleState.isShowingFlowKeyboardBubble) return
+        _bubble?.remove()
         _closeBubble?.remove()
     }
 
@@ -198,7 +219,7 @@ abstract class BaseBubbleService : Service() {
     private inner class CustomBubbleListener(
         private val lBubble: BubbleView?,
         private val lCloseBubble: CloseBubbleView?,
-        private val isAnimatedToEdge: Boolean = false,
+        private val isAnimatedToEdge: Boolean = true,
         private val context: Context,
 
         //Function Param

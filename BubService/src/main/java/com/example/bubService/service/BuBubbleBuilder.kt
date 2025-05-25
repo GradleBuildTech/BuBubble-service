@@ -24,10 +24,11 @@ class BuBubbleBuilder(
     private val context: Context
 ) {
     ///✨ Config data of bubbleView
-    internal var bubbleView: ComposeView? = null
+    internal var bubbleView: View? = null
+    internal var bubbleComposeView: ComposeView? = null
 
     ///📝  Position display of bubble
-    private var startPoint = Point(0, 0)
+    internal var startPoint = Point(0, 0)
 
     ///📝  Animation of bubble
     internal var isAnimateToEdgeEnabled = true
@@ -43,7 +44,7 @@ class BuBubbleBuilder(
 
     ///✨ Config data of closeBubbleView
     internal var closeView: View? = null
-    internal var closeBubbleView: ComposeView? = null
+    internal var closeComposeView: ComposeView? = null
 
     ///📝 Distance to close the bubble
     internal var distanceToClose: Int = 100
@@ -54,17 +55,21 @@ class BuBubbleBuilder(
     ///✨ Config data of flowKeyboardBubbleView
     internal var flowKeyboardBubbleView: ComposeView? = null
 
+    fun bubbleView(view: View): BuBubbleBuilder {
+        this.bubbleView = view
+        return this
+    }
 
     /// Handle builder pattern
     fun bubbleViewCompose(content: @Composable () -> Unit): BuBubbleBuilder {
-        this.bubbleView = ComposeView(context).apply {
+        this.bubbleComposeView = ComposeView(context).apply {
             setContent(content)
         }
         return this
     }
 
     fun closeBubbleViewCompose(content: @Composable () -> Unit): BuBubbleBuilder {
-        this.closeBubbleView = ComposeView(context).apply {
+        this.closeComposeView = ComposeView(context).apply {
             setContent(content)
         }
         return this

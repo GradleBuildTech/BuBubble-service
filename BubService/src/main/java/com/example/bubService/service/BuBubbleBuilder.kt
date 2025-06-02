@@ -27,21 +27,6 @@ class BuBubbleBuilder(
     internal var bubbleView: View? = null
     internal var bubbleComposeView: ComposeView? = null
 
-    ///📝  Position display of bubble
-    internal var startPoint = Point(0, 0)
-
-    ///📝  Animation of bubble
-    internal var isAnimateToEdgeEnabled = true
-
-    ///📝  Config user behavior of bubble
-    internal var listener: BubbleListener? = null
-
-    ///📝  Config dragging of bubble
-    internal var forceDragging: Boolean = true
-
-    ///📝  Config draggable of bubble, default is true, if false, the bubble will not be draggable
-    internal var isBubbleDraggable: Boolean = true
-
     ///✨ Config data of closeBubbleView
     internal var closeView: View? = null
     internal var closeComposeView: ComposeView? = null
@@ -55,13 +40,29 @@ class BuBubbleBuilder(
     ///✨ Config data of flowKeyboardBubbleView
     internal var flowKeyboardBubbleView: ComposeView? = null
 
+    ///📝  Position display of bubble
+    internal var startPoint = Point(0, 0)
+
+    ///📝  Animation of bubble
+    internal var isAnimateToEdgeEnabled = true
+
+    ///📝  Config user behavior of bubble
+    internal var listener: BubbleListener? = null
+
+    ///📝  Config dragging of bubble
+    internal var forceDragging: Boolean = true
+
+    ///📝  Animated close
+    internal var animatedClose: Boolean = true
+
+
+    /// Handle builder pattern
     fun bubbleView(view: View): BuBubbleBuilder {
         this.bubbleView = view
         return this
     }
 
-    /// Handle builder pattern
-    fun bubbleViewCompose(content: @Composable () -> Unit): BuBubbleBuilder {
+    fun bubbleComposeView(content: (@Composable () -> Unit)): BuBubbleBuilder {
         this.bubbleComposeView = ComposeView(context).apply {
             setContent(content)
         }
@@ -110,11 +111,6 @@ class BuBubbleBuilder(
         return this
     }
 
-    fun bubbleDraggable(isBubbleDraggable: Boolean): BuBubbleBuilder {
-        this.isBubbleDraggable = isBubbleDraggable
-        return this
-    }
-
     fun bubbleDistanceToClose(distanceToClose: Int): BuBubbleBuilder {
         this.distanceToClose = distanceToClose
         return this
@@ -122,6 +118,11 @@ class BuBubbleBuilder(
 
     fun bubbleAnimateToEdgeEnabled(isAnimateToEdgeEnabled: Boolean): BuBubbleBuilder {
         this.isAnimateToEdgeEnabled = isAnimateToEdgeEnabled
+        return this
+    }
+
+    fun bubbleAnimatedClose(animatedClose: Boolean): BuBubbleBuilder {
+        this.animatedClose = animatedClose
         return this
     }
 }

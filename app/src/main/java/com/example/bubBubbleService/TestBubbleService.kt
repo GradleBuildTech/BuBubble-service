@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.bubBubbleService.compose.TestBubbleCompose
 import com.example.bubService.event.BubbleListener
 import com.example.bubService.notification.NotificationHelper
 import com.example.bubService.service.BaseBubbleService
@@ -32,7 +33,7 @@ class TestBubbleService : BaseBubbleService() {
             }
         }
 
-        val bubbleView =ImageView(this).apply {
+        val bubbleView = ImageView(this).apply {
             setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_flutter)).apply {
                 layoutParams = ViewGroup.LayoutParams(80, 80)
             }
@@ -43,12 +44,12 @@ class TestBubbleService : BaseBubbleService() {
             .closeView(closeBubbleView)
             .bubbleStartPoint(Point(0, 400))
             .bubbleForceDragging(true)
-            .bubbleDraggable(true)
             .bubbleAnimateToEdgeEnabled(true)
             .bubbleDistanceToClose(200)
+            .bubbleAnimatedClose(true)
             .bubbleListener(
                 object : BubbleListener {
-                    override fun onFingerDown(x: Float, y: Float) {
+                    override fun onFingerDown(x: Float, y: Float) { 
                     }
 
                     override fun onFingerMove(x: Float, y: Float) {

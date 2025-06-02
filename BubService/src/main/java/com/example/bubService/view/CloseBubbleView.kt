@@ -39,8 +39,9 @@ class CloseBubbleView(
 
     ///✨ The following variables are used to store the animation of the bubble
     private var isAnimatedBubble = false
+
     ///✨ The following variables are used to store the attraction of the bubble
-    private var isAttracted = false
+    private var isAttracted = true
 
     init {
         layoutParams?.applyCloseBubbleViewLayoutParams()
@@ -115,24 +116,24 @@ class CloseBubbleView(
         distanceFromBubbleToCloseField(bubbleView) == 0.0F
 
     /**
-        * This function is used to check if the bubble is in the close field
-        * It takes in a bubbleView and returns a boolean
-        * @Param bubbleView is the bubble view
-        * @Param fingerPositionX is the x position of the finger
-        * @Param fingerPositionY is the y position of the finger
-        * @return true if the bubble is in the close field
+     * This function is used to check if the bubble is in the close field
+     * It takes in a bubbleView and returns a boolean
+     * @Param bubbleView is the bubble view
+     * @Param fingerPositionX is the x position of the finger
+     * @Param fingerPositionY is the y position of the finger
+     * @return true if the bubble is in the close field
      */
     fun tryAttractBubble(
         bubbleView: BubbleView,
         fingerPositionX: Float,
         fingerPositionY: Float
-    ) : Boolean {
-        if(isAttracted.not()){
+    ): Boolean {
+        if (isAttracted.not()) {
             return false
         }
 
-        if(isFingerInCloseField(x = fingerPositionX, y = fingerPositionY)){
-            if(!isAnimatedBubble) {
+        if (isFingerInCloseField(x = fingerPositionX, y = fingerPositionY)) {
+            if (!isAnimatedBubble) {
                 val bWidth = bubbleView.root?.width ?: 0
                 val bHeight = bubbleView.root?.height ?: 0
                 val xOffSet = (bubbleWidth - bWidth) / 2
@@ -151,4 +152,36 @@ class CloseBubbleView(
         return false
     }
 
+    fun resetCloseBubblePosition() {
+        if (root?.windowToken == null) return
+
+        positionX = halfWidthScreen - (bubbleWidth / 2)
+        positionY = sez.safeHeight - bubbleHeight - 100
+
+        centerBubblePositionX = halfWidthScreen
+        centerBubblePositionY = positionY + (bubbleWidth / 2)
+
+        layoutParams?.apply {
+            this.x = positionX
+            this.y = positionY
+        }
+        update()
+    }
+
+    fun updateUiPosition(positionX: Float? = null, positionY: Float? = null) {
+        if (root?.windowToken == null) return
+
+        if (positionX != null) {
+            this.positionX = positionX.toInt()
+        }
+        if (positionY != null) {
+            this.positionY = positionY.toInt()
+        }
+
+        layoutParams?.apply {
+            if (positionX != null) this.x = positionX.toInt()
+            this.y = positionY?.toInt() ?: centerBubblePositionY
+        }
+        update()
+    }
 }

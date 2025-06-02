@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import com.example.bubService.event.BubbleListener
 import com.example.bubService.utils.BubbleEdgeSide
+import com.example.bubService.utils.DistanceCalculator
 import com.example.bubService.utils.ServiceInteraction
 import com.example.bubService.utils.canDrawOverlays
 import com.example.bubService.utils.sez
@@ -17,9 +18,12 @@ import com.example.bubService.view.CloseBubbleView
 import com.example.bubService.view.ExpandBubbleView
 import com.example.bubService.view.FlowKeyboardBubbleView
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 abstract class BaseBubbleService : Service() {
@@ -65,6 +69,7 @@ abstract class BaseBubbleService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        serviceScope = CoroutineScope(Dispatchers.Main)
         if (canDrawOverlays().not()) {
             throw IllegalStateException(
                 "You must enable 'Draw over other apps' permission to use this service."
@@ -74,6 +79,7 @@ abstract class BaseBubbleService : Service() {
             onCreateBubble(configBubble())
             this._serviceInteraction = object : ServiceInteraction {
                 override fun requestStop() {
+                    stopSelf()
                 }
             }
         }
@@ -88,13 +94,14 @@ abstract class BaseBubbleService : Service() {
     }
 
     override fun onDestroy() {
+        hideBubble()
+        serviceScope.cancel()
         super.onDestroy()
     }
 
     ///✨ onCreateBubble is a function that takes in a bubbleBuilder
     /// It creates a bubble, closeBubble, expandBubble and flowKeyboardBubble
     /// It adds the bubbleView to the bubble (close, expand, ....)
-
     private fun onCreateBubble(bubbleBuilder: BuBubbleBuilder?) {
         if (bubbleBuilder != null) {
             if (bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
@@ -103,15 +110,15 @@ abstract class BaseBubbleService : Service() {
                 }
                 _bubble = BubbleView(
                     context = this,
-                    containCompose = true,
+                    containCompose = bubbleBuilder.bubbleComposeView != null,
                     listener = bubbleBuilder.listener,
                     forceDragging = bubbleBuilder.forceDragging,
                     startPoint = bubbleBuilder.startPoint,
                 )
                 if (bubbleBuilder.bubbleComposeView != null) {
-                    _bubble!!.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
+                    _bubble?.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
                 } else if (bubbleBuilder.bubbleView != null) {
-                    _bubble!!.rootGroup?.addView(bubbleBuilder.bubbleView)
+                    _bubble?.rootGroup?.addView(bubbleBuilder.bubbleView)
                 }
             }
 
@@ -124,25 +131,28 @@ abstract class BaseBubbleService : Service() {
                     distanceToClose = bubbleBuilder.distanceToClose
                 )
                 if (bubbleBuilder.closeComposeView != null) {
-                    _closeBubble!!.rootGroup?.addView(bubbleBuilder.closeComposeView)
+                    _closeBubble?.rootGroup?.addView(bubbleBuilder.closeComposeView)
                 } else if (bubbleBuilder.closeView != null) {
-                    _closeBubble!!.rootGroup?.addView(bubbleBuilder.closeView)
+                    _closeBubble?.rootGroup?.addView(bubbleBuilder.closeView)
                 }
             }
             if (bubbleBuilder.expandBubbleView != null) {
                 _expandBubble = ExpandBubbleView(context = this)
-                _expandBubble!!.rootGroup?.addView(bubbleBuilder.expandBubbleView)
+                _expandBubble?.rootGroup?.addView(bubbleBuilder.expandBubbleView)
             }
             if (bubbleBuilder.flowKeyboardBubbleView != null) {
                 _flowKeyboardBubble = FlowKeyboardBubbleView(context = this)
-                _flowKeyboardBubble!!.rootGroup?.addView(bubbleBuilder.flowKeyboardBubbleView)
+                _flowKeyboardBubble?.rootGroup?.addView(bubbleBuilder.flowKeyboardBubbleView)
             }
 
             _bubble?.mListener = CustomBubbleListener(
+                context = this,
                 lBubble = _bubble,
                 lCloseBubble = _closeBubble,
-                context = this,
+                distanceToClose = bubbleBuilder.distanceToClose.toDouble(),
+                halfScreen = (sez.fullWidth / 2).toDouble(),
                 isAnimatedToEdge = bubbleBuilder.isAnimateToEdgeEnabled,
+                isAnimatedClose = bubbleBuilder.animatedClose,
                 onCloseBubbleView = {
                     _bubbleStateFlow.value = bubbleState.copy(
                         isBubbleShow = false,
@@ -217,10 +227,16 @@ abstract class BaseBubbleService : Service() {
      * @Param context is the context of the bubble
      */
     private inner class CustomBubbleListener(
+        private val context: Context,
+
         private val lBubble: BubbleView?,
         private val lCloseBubble: CloseBubbleView?,
         private val isAnimatedToEdge: Boolean = true,
-        private val context: Context,
+        private val isAnimatedClose: Boolean = false,
+
+        private val halfScreen: Double,
+        private val distanceToClose: Double,
+
 
         //Function Param
         private val onCloseBubbleView: () -> Unit,
@@ -228,6 +244,26 @@ abstract class BaseBubbleService : Service() {
         private var _onMove = false
         private var _fingerPositionX = 0f
         private var _fingerPositionY = 0f
+
+        private fun updateCloseBubblePosition(x: Float) {
+            val xBubbleMove = abs(x - halfScreen)
+            val closeBubbleMove = DistanceCalculator.newDistanceClose(
+                halfScreenWidth = halfScreen,
+                bubbleDistance = xBubbleMove,
+                distanceToClose = distanceToClose
+            ).toFloat()
+            Log.d(
+                "BaseBubbleService",
+                "updateCloseBubblePosition: $closeBubbleMove $x $xBubbleMove $halfScreen $distanceToClose "
+            )
+            lCloseBubble?.updateUiPosition(
+                positionX = if (x < halfScreen) {
+                    (halfScreen - closeBubbleMove).toFloat()
+                } else {
+                    (halfScreen + closeBubbleMove).toFloat()
+                },
+            )
+        }
 
         override fun onFingerDown(x: Float, y: Float) {
             _fingerPositionX = x
@@ -245,14 +281,24 @@ abstract class BaseBubbleService : Service() {
                     lCloseBubble.show()
                 }
             }
-            if (closeBubbleFlow.not()) {
-                lBubble.updateUiPosition(x, y)
+            if (closeBubbleFlow.not() || isAnimatedClose) {
+                lBubble.updateUiPosition(x, y, callBack = { iX, iY ->
+                    if (isAnimatedClose) {
+                        if (closeBubbleFlow.not()) {
+                            updateCloseBubblePosition(iX.toFloat())
+                        } else {
+                            lCloseBubble.updateUiPosition(iX.toFloat(), iY.toFloat())
+                        }
+                    }
+                })
             }
+
         }
 
         override fun onFingerUp(x: Float, y: Float) {
             if (lBubble == null || lCloseBubble == null) return
             _onMove = false
+            lCloseBubble.resetCloseBubblePosition()
             lCloseBubble.remove()
             if (x == _fingerPositionX && y == _fingerPositionY) {
                 return

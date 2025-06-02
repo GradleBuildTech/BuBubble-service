@@ -162,7 +162,7 @@ class CloseBubbleView(
         if (root?.windowToken == null) return
 
         positionX = halfWidthScreen - (bubbleWidth / 2)
-        positionY = sez.safeHeight - bubbleHeight - 100
+        positionY = sez.safeHeight - bubbleHeight - closeBottomDist
 
         centerBubblePositionX = halfWidthScreen
         centerBubblePositionY = positionY + (bubbleWidth / 2)
@@ -191,3 +191,4 @@ class CloseBubbleView(
         update()
     }
 }
+

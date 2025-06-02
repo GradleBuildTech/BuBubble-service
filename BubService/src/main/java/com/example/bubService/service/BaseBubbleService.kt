@@ -242,7 +242,14 @@ abstract class BaseBubbleService : Service() {
         private var fingerStartX = 0f
         private var fingerStartY = 0f
 
-        private fun updateCloseBubblePosition(x: Float) {
+        private fun updateCloseBubblePosition(x: Float, y: Float, isAttracted: Boolean) {
+            if(isAnimatedClose.not()) return
+
+            if(isAttracted) {
+                lCloseBubble?.updateUiPosition(positionX = x, positionY = y)
+                return
+            }
+
             val bubbleDistance = abs(x - halfScreen)
             val offsetX = DistanceCalculator.newDistanceClose(
                 halfScreenWidth = halfScreen,
@@ -282,13 +289,7 @@ abstract class BaseBubbleService : Service() {
 
             if (!isAttracted || isAnimatedClose) {
                 lBubble.updateUiPosition(x, y) { iX, iY ->
-                    if (isAnimatedClose) {
-                        if (!isAttracted) {
-                            updateCloseBubblePosition(iX.toFloat())
-                        } else {
-                            lCloseBubble.updateUiPosition(iX.toFloat(), iY.toFloat())
-                        }
-                    }
+                    updateCloseBubblePosition(iX.toFloat(), iY.toFloat(), isAttracted)
                 }
             }
         }

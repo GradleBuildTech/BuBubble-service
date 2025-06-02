@@ -1,4 +1,3 @@
 package com.example.bubService.utils
 
-class Constants {
-}
+const val CLOSE_BOTTOM_DIST = 100

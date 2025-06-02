@@ -128,6 +128,7 @@ abstract class BaseBubbleService : Service() {
                 }
                 _closeBubble = CloseBubbleView(
                     context = this,
+                    closeBottomDist = bubbleBuilder.closeBottomDist,
                     distanceToClose = bubbleBuilder.distanceToClose
                 )
                 if (bubbleBuilder.closeComposeView != null) {
@@ -228,92 +229,91 @@ abstract class BaseBubbleService : Service() {
      */
     private inner class CustomBubbleListener(
         private val context: Context,
-
         private val lBubble: BubbleView?,
         private val lCloseBubble: CloseBubbleView?,
         private val isAnimatedToEdge: Boolean = true,
         private val isAnimatedClose: Boolean = false,
-
         private val halfScreen: Double,
         private val distanceToClose: Double,
-
-
-        //Function Param
         private val onCloseBubbleView: () -> Unit,
     ) : BubbleListener {
-        private var _onMove = false
-        private var _fingerPositionX = 0f
-        private var _fingerPositionY = 0f
+
+        private var isMoving = false
+        private var fingerStartX = 0f
+        private var fingerStartY = 0f
 
         private fun updateCloseBubblePosition(x: Float) {
-            val xBubbleMove = abs(x - halfScreen)
-            val closeBubbleMove = DistanceCalculator.newDistanceClose(
+            val bubbleDistance = abs(x - halfScreen)
+            val offsetX = DistanceCalculator.newDistanceClose(
                 halfScreenWidth = halfScreen,
-                bubbleDistance = xBubbleMove,
+                bubbleDistance = bubbleDistance,
                 distanceToClose = distanceToClose
             ).toFloat()
+
+            val newX = if (x < halfScreen) {
+                (halfScreen - offsetX).toFloat()
+            } else {
+                (halfScreen + offsetX).toFloat()
+            }
+
+            lCloseBubble?.updateUiPosition(positionX = newX)
+
             Log.d(
                 "BaseBubbleService",
-                "updateCloseBubblePosition: $closeBubbleMove $x $xBubbleMove $halfScreen $distanceToClose "
-            )
-            lCloseBubble?.updateUiPosition(
-                positionX = if (x < halfScreen) {
-                    (halfScreen - closeBubbleMove).toFloat()
-                } else {
-                    (halfScreen + closeBubbleMove).toFloat()
-                },
+                "updateCloseBubblePosition: $offsetX $x $bubbleDistance $halfScreen $distanceToClose"
             )
         }
 
         override fun onFingerDown(x: Float, y: Float) {
-            _fingerPositionX = x
-            _fingerPositionY = y
+            fingerStartX = x
+            fingerStartY = y
             lBubble?.safeCancelAnimation()
-
         }
 
         override fun onFingerMove(x: Float, y: Float) {
-            if (lCloseBubble == null || lBubble == null) return
-            val closeBubbleFlow = _closeBubble?.tryAttractBubble(lBubble, x, y) ?: false
-            if (_onMove.not()) {
-                if (x != _fingerPositionX || y != _fingerPositionY) {
-                    _onMove = true
-                    lCloseBubble.show()
-                }
+            if (lBubble == null || lCloseBubble == null) return
+
+            val isAttracted = _closeBubble?.tryAttractBubble(lBubble, x, y) ?: false
+
+            if (!isMoving && (x != fingerStartX || y != fingerStartY)) {
+                isMoving = true
+                lCloseBubble.show()
             }
-            if (closeBubbleFlow.not() || isAnimatedClose) {
-                lBubble.updateUiPosition(x, y, callBack = { iX, iY ->
+
+            if (!isAttracted || isAnimatedClose) {
+                lBubble.updateUiPosition(x, y) { iX, iY ->
                     if (isAnimatedClose) {
-                        if (closeBubbleFlow.not()) {
+                        if (!isAttracted) {
                             updateCloseBubblePosition(iX.toFloat())
                         } else {
                             lCloseBubble.updateUiPosition(iX.toFloat(), iY.toFloat())
                         }
                     }
-                })
+                }
             }
-
         }
 
         override fun onFingerUp(x: Float, y: Float) {
             if (lBubble == null || lCloseBubble == null) return
-            _onMove = false
+
+            isMoving = false
             lCloseBubble.resetCloseBubblePosition()
             lCloseBubble.remove()
-            if (x == _fingerPositionX && y == _fingerPositionY) {
-                return
-            }
-            if (lCloseBubble.isBubbleInCloseField(lBubble) && lCloseBubble.isFingerInCloseField(
-                    x,
-                    y
-                )
-            ) {
+
+            if (x == fingerStartX && y == fingerStartY) return
+
+            val shouldClose = lCloseBubble.isBubbleInCloseField(lBubble) &&
+                    lCloseBubble.isFingerInCloseField(x, y)
+
+            if (shouldClose) {
                 lBubble.setPosition(0, (sez.fullHeight / 2 - 40))
                 lBubble.updateByNewPosition()
-                this.onCloseBubbleView()
+                onCloseBubbleView()
             } else {
-                if (isAnimatedToEdge) lBubble.snapToEdge {
-                    changeBubbleEdgeSideListener(it)
+                if (isAnimatedToEdge) {
+                    lBubble.snapToEdge { edge ->
+                        changeBubbleEdgeSideListener(edge)
+                    }
                 }
                 onCheckBubbleTouchLeavesListener(x, y)
             }

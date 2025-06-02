@@ -46,6 +46,7 @@ class TestBubbleService : BaseBubbleService() {
             .bubbleForceDragging(true)
             .bubbleAnimateToEdgeEnabled(true)
             .bubbleDistanceToClose(200)
+            .bubbleCloseBottomDist(100)
             .bubbleAnimatedClose(true)
             .bubbleListener(
                 object : BubbleListener {

@@ -6,6 +6,7 @@ import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.example.bubService.event.BubbleListener
+import com.example.bubService.utils.CLOSE_BOTTOM_DIST
 
 
 /**
@@ -33,6 +34,9 @@ class BuBubbleBuilder(
 
     ///📝 Distance to close the bubble
     internal var distanceToClose: Int = 100
+
+    ///📝 Distance to close the bubble from the bottom of the screen
+    internal var closeBottomDist: Int = CLOSE_BOTTOM_DIST
 
     ///✨ Config data of expandBubbleView
     internal var expandBubbleView: ComposeView? = null
@@ -113,6 +117,11 @@ class BuBubbleBuilder(
 
     fun bubbleDistanceToClose(distanceToClose: Int): BuBubbleBuilder {
         this.distanceToClose = distanceToClose
+        return this
+    }
+
+    fun bubbleCloseBottomDist(closeBottomDist: Int): BuBubbleBuilder {
+        this.closeBottomDist = closeBottomDist
         return this
     }
 

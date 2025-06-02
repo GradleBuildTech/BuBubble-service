@@ -3,6 +3,7 @@ package com.example.bubService.view
 import android.content.Context
 import android.view.View
 import android.widget.LinearLayout
+import com.example.bubService.utils.CLOSE_BOTTOM_DIST
 import com.example.bubService.utils.DistanceCalculator
 import com.example.bubService.utils.afterMeasured
 import com.example.bubService.utils.applyCloseBubbleViewLayoutParams
@@ -10,15 +11,20 @@ import com.example.bubService.utils.getXYOnScreen
 import com.example.bubService.utils.sez
 import com.example.bubService.view.layout.BubbleInitialization
 
-///CLoseBubbleView is a class that extends BubbleInitialization
-///It is used to create a view that is used to close the bubble
-///It takes in a context and a distanceToClose
-///It has a root that is a LinearLayout
-
-///✨ CloseBubbleView always display in the bottom of the screen
-/// This is used to close the bubble
+/**
+ * CloseBubbleView.kt
+ * This file is part of the BuBubbleService project.
+ * It is used to create a close bubble view that can be used to close the bubble.
+ * It extends the BubbleInitialization class and provides functionality to attract a bubble view towards it when the user touches the close field.
+ * It calculates the distance from the bubble to the close field and updates the position of the bubble accordingly.
+ * It also provides functionality to reset the position of the close bubble and update its UI position.
+ * @param context The context of the application.
+ * @param closeBottomDist The distance from the bottom of the screen to the close bubble.
+ * @param distanceToClose The distance from the bubble to the close field.
+* */
 class CloseBubbleView(
     context: Context,
+    private val closeBottomDist: Int = CLOSE_BOTTOM_DIST,
     private val distanceToClose: Int = 100
 ) : BubbleInitialization(
     context = context,
@@ -53,7 +59,7 @@ class CloseBubbleView(
             bubbleWidth = root?.width ?: 0
 
             positionX = halfWidthScreen - (bubbleWidth / 2)
-            positionY = sez.safeHeight - bubbleHeight - 100
+            positionY = sez.safeHeight - bubbleHeight - closeBottomDist
 
             centerBubblePositionX = halfWidthScreen
             centerBubblePositionY = positionY + (bubbleWidth / 2)

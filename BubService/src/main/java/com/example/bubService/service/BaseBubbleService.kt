@@ -226,6 +226,8 @@ abstract class BaseBubbleService : Service() {
      * @Param lCloseBubble is the close bubble view
      * @Param isAnimatedToEdge is a boolean value that indicates if the bubble is animated to the edge
      * @Param context is the context of the bubble
+     * @Param halfScreen is the half screen width
+     * @Param distanceToClose is the distance to close the bubble
      */
     private inner class CustomBubbleListener(
         private val context: Context,
@@ -245,17 +247,21 @@ abstract class BaseBubbleService : Service() {
         private fun updateCloseBubblePosition(x: Float, y: Float, isAttracted: Boolean) {
             if(isAnimatedClose.not()) return
 
+            if (lBubble == null || lCloseBubble == null) return
+
             if(isAttracted) {
-                lCloseBubble?.updateUiPosition(positionX = x, positionY = y)
+                lCloseBubble.updateUiPosition(positionX = x, positionY = y)
                 return
             }
 
             val bubbleDistance = abs(x - halfScreen)
-            val offsetX = DistanceCalculator.newDistanceClose(
+            val offsetX = DistanceCalculator.newDistanceCloseX(
                 halfScreenWidth = halfScreen,
                 bubbleDistance = bubbleDistance,
                 distanceToClose = distanceToClose
             ).toFloat()
+
+
 
             val newX = if (x < halfScreen) {
                 (halfScreen - offsetX).toFloat()
@@ -263,7 +269,9 @@ abstract class BaseBubbleService : Service() {
                 (halfScreen + offsetX).toFloat()
             }
 
-            lCloseBubble?.updateUiPosition(positionX = newX)
+            val newY = lCloseBubble.getAnimationPositionY(lBubble, y)
+
+            lCloseBubble.updateUiPosition(positionX = newX, positionY = newY)
 
             Log.d(
                 "BaseBubbleService",

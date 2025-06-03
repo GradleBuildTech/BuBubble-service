@@ -21,11 +21,11 @@ import com.example.bubService.view.layout.BubbleInitialization
  * @param context The context of the application.
  * @param closeBottomDist The distance from the bottom of the screen to the close bubble.
  * @param distanceToClose The distance from the bubble to the close field.
-* */
+ * */
 class CloseBubbleView(
     context: Context,
     private val closeBottomDist: Int = CLOSE_BOTTOM_DIST,
-    private val distanceToClose: Int = 100
+    private val distanceToClose: Int = 100,
 ) : BubbleInitialization(
     context = context,
     root = LinearLayout(context)
@@ -132,7 +132,7 @@ class CloseBubbleView(
     fun tryAttractBubble(
         bubbleView: BubbleView,
         fingerPositionX: Float,
-        fingerPositionY: Float
+        fingerPositionY: Float,
     ): Boolean {
         if (isAttracted.not()) {
             return false
@@ -189,6 +189,49 @@ class CloseBubbleView(
             this.y = positionY?.toInt() ?: centerBubblePositionY
         }
         update()
+    }
+
+    /**
+     * Calculates the distance from the top of the close field to the bubble view.
+     * This is used to determine how far the bubble view is from the close field when animating it to close.
+     */
+    private fun topToCloseFieldDistance(bubbleView: BubbleView): Int {
+        return centerBubblePositionY - distanceToClose - (bubbleView.root?.height ?: 0)
+    }
+
+    /**
+     * Returns the distance to close the bubble.
+     * This is used to determine how far the bubble view is from the close field when animating it to close.
+     */
+    private fun getDistanceToClose(): Int {
+        return distanceToClose - (bubbleHeight / 2)
+    }
+
+    /**
+     * Calculates the Y position for the bubble animation based on the finger's Y position.
+     * This is used to determine how far the bubble view should be animated to close.
+     * @param bubbleView The BubbleView that is being animated.
+     * @param fingerPositionY The Y position of the finger on the screen.
+     * @return The new Y position for the bubble animation, or null if it should not animate.
+     */
+    fun getAnimationPositionY(bubbleView: BubbleView, fingerPositionY: Float): Float {
+        val topToCloseFieldDist = topToCloseFieldDistance(bubbleView)
+
+        if (fingerPositionY > topToCloseFieldDist) {
+            return fingerPositionY
+        }
+
+
+        val rDistanceToClose = getDistanceToClose()
+
+        val offSetY = DistanceCalculator.newDistanceCloseY(
+            halfScreenHeight = topToCloseFieldDist.toDouble(),
+            bubbleDistance = fingerPositionY.toDouble(),
+            distanceToClose = rDistanceToClose.toDouble()
+        ).toFloat()
+
+        return centerBubblePositionY - (bubbleHeight) - offSetY
+
     }
 }
 

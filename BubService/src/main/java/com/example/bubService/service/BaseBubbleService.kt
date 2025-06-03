@@ -51,12 +51,14 @@ abstract class BaseBubbleService : Service() {
         }
         get() = _bubbleStateFlow.value
 
-    ///✨ BuBubbleBuilder is an abstract class that is used to build a bubble
-    /// Implement style config in this function
+    /**
+     * ✨ BuBubbleBuilder is an abstract class that is used to build a bubble
+     * Implement style config in this function
+     */
     abstract fun configBubble(): BuBubbleBuilder
 
 
-    /// Abstract function support for handle bubble event
+    // Abstract function support for handle bubble event
     abstract fun startNotificationForeground()
     abstract fun clearCachedData()
     abstract fun changeBubbleEdgeSideListener(edgeSide: BubbleEdgeSide)
@@ -67,6 +69,9 @@ abstract class BaseBubbleService : Service() {
 
     override fun onBind(p0: Intent?): IBinder? = null
 
+    /**
+     * 🎉 Bubble configuration
+     */
     override fun onCreate() {
         super.onCreate()
         serviceScope = CoroutineScope(Dispatchers.Main)
@@ -99,9 +104,11 @@ abstract class BaseBubbleService : Service() {
         super.onDestroy()
     }
 
-    ///✨ onCreateBubble is a function that takes in a bubbleBuilder
-    /// It creates a bubble, closeBubble, expandBubble and flowKeyboardBubble
-    /// It adds the bubbleView to the bubble (close, expand, ....)
+    /**
+     * ✨ onCreateBubble is a function that takes in a bubbleBuilder
+     * It creates a bubble, closeBubble, expandBubble and flowKeyboardBubble
+     * It adds the bubbleView to the bubble (close, expand, ....)
+     */
     private fun onCreateBubble(bubbleBuilder: BuBubbleBuilder?) {
         if (bubbleBuilder != null) {
             if (bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
@@ -167,7 +174,7 @@ abstract class BaseBubbleService : Service() {
         }
     }
 
-    ///✨ onClearAllBubbleData is a function that removes the bubble, closeBubble, expandBubble and flowKeyboardBubble
+    // ✨ onClearAllBubbleData is a function that removes the bubble, closeBubble, expandBubble and flowKeyboardBubble
     private fun onClearAllBubbleData() {
         _bubble?.remove()
         _closeBubble?.remove()
@@ -175,7 +182,12 @@ abstract class BaseBubbleService : Service() {
         _flowKeyboardBubble?.remove()
     }
 
-    ///🎈 Bubble event
+    // ---------------------------------------------------------------------------------
+
+    /**
+     * 🎈 Bubble behavior
+     * * This function is used to show the bubble view.
+     */
     fun showBubble() {
         if (bubbleState.isBubbleServiceActivated.not() || bubbleState.isBubbleShow) return
         if (_expandBubble?.root?.isShown == true) return
@@ -191,8 +203,13 @@ abstract class BaseBubbleService : Service() {
         _closeBubble?.remove()
     }
 
+    // ---------------------------------------------------------------------------------
 
-    ///🎈 Expand bubble event
+
+    /**
+     * 🎈 Expand bubble behavior
+     * * This function is used to show the expand bubble view.
+     */
     fun showExpandBubble(isRemoveBubble: Boolean = false) {
         if (isRemoveBubble) {
             _bubble?.remove()
@@ -204,7 +221,13 @@ abstract class BaseBubbleService : Service() {
         _expandBubble?.updateVisibility(false)
     }
 
-    ///🎈 Flow keyboard bubble event
+    // ---------------------------------------------------------------------------------
+
+
+    /**
+     * 🎈 Flow keyboard bubble behavior
+     * * This function is used to show the flow keyboard bubble view.
+     */
     fun showFlowKeyboardBubble() {
         if ((_flowKeyboardBubble?.isShown() == true) || bubbleState.isShowingFlowKeyboardBubble) return
         _bubbleStateFlow.value = bubbleState.copy(isShowingFlowKeyboardBubble = true)
@@ -218,6 +241,8 @@ abstract class BaseBubbleService : Service() {
     fun hideFlowKeyboardBubble() {
         _expandBubble?.remove()
     }
+
+    // ---------------------------------------------------------------------------------
 
 
     /**

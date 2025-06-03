@@ -28,13 +28,13 @@ class TestBubbleService : BaseBubbleService() {
 
         val closeBubbleView = ImageView(this).apply {
             setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_close_bubble)).apply {
-                layoutParams = ViewGroup.LayoutParams(80, 80)
+                layoutParams = ViewGroup.LayoutParams(100, 100)
             }
         }
 
         val bubbleView = ImageView(this).apply {
             setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_flutter)).apply {
-                layoutParams = ViewGroup.LayoutParams(80, 80)
+                layoutParams = ViewGroup.LayoutParams(100, 100)
             }
         }
 

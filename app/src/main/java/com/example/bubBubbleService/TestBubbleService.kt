@@ -32,7 +32,7 @@ class TestBubbleService : BaseBubbleService() {
             }
         }
 
-        val bubbleView =ImageView(this).apply {
+        val bubbleView = ImageView(this).apply {
             setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_flutter)).apply {
                 layoutParams = ViewGroup.LayoutParams(80, 80)
             }
@@ -43,12 +43,13 @@ class TestBubbleService : BaseBubbleService() {
             .closeView(closeBubbleView)
             .bubbleStartPoint(Point(0, 400))
             .bubbleForceDragging(true)
-            .bubbleDraggable(true)
             .bubbleAnimateToEdgeEnabled(true)
             .bubbleDistanceToClose(200)
+            .bubbleCloseBottomDist(100)
+            .bubbleAnimatedClose(true)
             .bubbleListener(
                 object : BubbleListener {
-                    override fun onFingerDown(x: Float, y: Float) {
+                    override fun onFingerDown(x: Float, y: Float) { 
                     }
 
                     override fun onFingerMove(x: Float, y: Float) {

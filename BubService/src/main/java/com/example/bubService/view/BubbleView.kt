@@ -57,16 +57,16 @@ class BubbleView(
 
     ///✨ The following variables are used to store the position of the bubble
     /// If don't want to drag,drop the bubble, set isDraggable to false
-    internal var isDraggable: Boolean = true
+    private var isDraggable: Boolean = true
 
     /// Getter value
     fun isSmallBubble(): Boolean {
-        if(this.root == null) return false
+        if (this.root == null) return false
         return this.root!!.height < bubbleHeight
     }
 
     fun isExpandWidth(): Boolean {
-        if(this.root == null) return false
+        if (this.root == null) return false
         return this.root!!.width > bubbleWidth
     }
 
@@ -89,11 +89,11 @@ class BubbleView(
         inVisibleBefore: Boolean = false,
         resetPositionY: Boolean = true
     ) {
-        if(inVisibleBefore) {
+        if (inVisibleBefore) {
             root?.visibility = View.INVISIBLE
         }
         layoutParams?.x = newPoint.x
-        if(resetPositionY) {
+        if (resetPositionY) {
             layoutParams?.y = newPoint.y
         }
         update()
@@ -163,7 +163,11 @@ class BubbleView(
     }
 
     /// updateUiPosition is a function that is used to update the position of the bubble
-    fun updateUiPosition(positionX: Float, positionY: Float) {
+    fun updateUiPosition(
+        positionX: Float,
+        positionY: Float,
+        callBack: ((Int, Int) -> Unit)? = null
+    ) {
         val mIconDeltaX = positionX - rawPointOnDown.x
         val mIconDeltaY = positionY - rawPointOnDown.y
 
@@ -188,6 +192,9 @@ class BubbleView(
         layoutParams?.y = newPoint.y
 
         update()
+
+        /// Invoke the callback with the new position
+        callBack?.invoke(newPoint.x, newPoint.y)
     }
 
     /// safeCancelAnimation is a function that is used to cancel the animation

@@ -6,6 +6,7 @@ import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.example.bubService.event.BubbleListener
+import com.example.bubService.utils.CLOSE_BOTTOM_DIST
 
 
 /**
@@ -27,6 +28,22 @@ class BuBubbleBuilder(
     internal var bubbleView: View? = null
     internal var bubbleComposeView: ComposeView? = null
 
+    ///✨ Config data of closeBubbleView
+    internal var closeView: View? = null
+    internal var closeComposeView: ComposeView? = null
+
+    ///📝 Distance to close the bubble
+    internal var distanceToClose: Int = 100
+
+    ///📝 Distance to close the bubble from the bottom of the screen
+    internal var closeBottomDist: Int = CLOSE_BOTTOM_DIST
+
+    ///✨ Config data of expandBubbleView
+    internal var expandBubbleView: ComposeView? = null
+
+    ///✨ Config data of flowKeyboardBubbleView
+    internal var flowKeyboardBubbleView: ComposeView? = null
+
     ///📝  Position display of bubble
     internal var startPoint = Point(0, 0)
 
@@ -39,29 +56,17 @@ class BuBubbleBuilder(
     ///📝  Config dragging of bubble
     internal var forceDragging: Boolean = true
 
-    ///📝  Config draggable of bubble, default is true, if false, the bubble will not be draggable
-    internal var isBubbleDraggable: Boolean = true
+    ///📝  Animated close
+    internal var animatedClose: Boolean = true
 
-    ///✨ Config data of closeBubbleView
-    internal var closeView: View? = null
-    internal var closeComposeView: ComposeView? = null
 
-    ///📝 Distance to close the bubble
-    internal var distanceToClose: Int = 100
-
-    ///✨ Config data of expandBubbleView
-    internal var expandBubbleView: ComposeView? = null
-
-    ///✨ Config data of flowKeyboardBubbleView
-    internal var flowKeyboardBubbleView: ComposeView? = null
-
+    /// Handle builder pattern
     fun bubbleView(view: View): BuBubbleBuilder {
         this.bubbleView = view
         return this
     }
 
-    /// Handle builder pattern
-    fun bubbleViewCompose(content: @Composable () -> Unit): BuBubbleBuilder {
+    fun bubbleComposeView(content: (@Composable () -> Unit)): BuBubbleBuilder {
         this.bubbleComposeView = ComposeView(context).apply {
             setContent(content)
         }
@@ -110,18 +115,23 @@ class BuBubbleBuilder(
         return this
     }
 
-    fun bubbleDraggable(isBubbleDraggable: Boolean): BuBubbleBuilder {
-        this.isBubbleDraggable = isBubbleDraggable
-        return this
-    }
-
     fun bubbleDistanceToClose(distanceToClose: Int): BuBubbleBuilder {
         this.distanceToClose = distanceToClose
         return this
     }
 
+    fun bubbleCloseBottomDist(closeBottomDist: Int): BuBubbleBuilder {
+        this.closeBottomDist = closeBottomDist
+        return this
+    }
+
     fun bubbleAnimateToEdgeEnabled(isAnimateToEdgeEnabled: Boolean): BuBubbleBuilder {
         this.isAnimateToEdgeEnabled = isAnimateToEdgeEnabled
+        return this
+    }
+
+    fun bubbleAnimatedClose(animatedClose: Boolean): BuBubbleBuilder {
+        this.animatedClose = animatedClose
         return this
     }
 }

@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import com.example.bubService.event.BubbleListener
 import com.example.bubService.utils.BubbleEdgeSide
+import com.example.bubService.utils.DistanceCalculator
 import com.example.bubService.utils.ServiceInteraction
 import com.example.bubService.utils.canDrawOverlays
 import com.example.bubService.utils.sez
@@ -17,9 +18,12 @@ import com.example.bubService.view.CloseBubbleView
 import com.example.bubService.view.ExpandBubbleView
 import com.example.bubService.view.FlowKeyboardBubbleView
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 abstract class BaseBubbleService : Service() {
@@ -65,6 +69,7 @@ abstract class BaseBubbleService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        serviceScope = CoroutineScope(Dispatchers.Main)
         if (canDrawOverlays().not()) {
             throw IllegalStateException(
                 "You must enable 'Draw over other apps' permission to use this service."
@@ -74,6 +79,7 @@ abstract class BaseBubbleService : Service() {
             onCreateBubble(configBubble())
             this._serviceInteraction = object : ServiceInteraction {
                 override fun requestStop() {
+                    stopSelf()
                 }
             }
         }
@@ -88,13 +94,14 @@ abstract class BaseBubbleService : Service() {
     }
 
     override fun onDestroy() {
+        hideBubble()
+        serviceScope.cancel()
         super.onDestroy()
     }
 
     ///✨ onCreateBubble is a function that takes in a bubbleBuilder
     /// It creates a bubble, closeBubble, expandBubble and flowKeyboardBubble
     /// It adds the bubbleView to the bubble (close, expand, ....)
-
     private fun onCreateBubble(bubbleBuilder: BuBubbleBuilder?) {
         if (bubbleBuilder != null) {
             if (bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
@@ -103,15 +110,15 @@ abstract class BaseBubbleService : Service() {
                 }
                 _bubble = BubbleView(
                     context = this,
-                    containCompose = true,
+                    containCompose = bubbleBuilder.bubbleComposeView != null,
                     listener = bubbleBuilder.listener,
                     forceDragging = bubbleBuilder.forceDragging,
                     startPoint = bubbleBuilder.startPoint,
                 )
                 if (bubbleBuilder.bubbleComposeView != null) {
-                    _bubble!!.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
+                    _bubble?.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
                 } else if (bubbleBuilder.bubbleView != null) {
-                    _bubble!!.rootGroup?.addView(bubbleBuilder.bubbleView)
+                    _bubble?.rootGroup?.addView(bubbleBuilder.bubbleView)
                 }
             }
 
@@ -121,28 +128,32 @@ abstract class BaseBubbleService : Service() {
                 }
                 _closeBubble = CloseBubbleView(
                     context = this,
+                    closeBottomDist = bubbleBuilder.closeBottomDist,
                     distanceToClose = bubbleBuilder.distanceToClose
                 )
                 if (bubbleBuilder.closeComposeView != null) {
-                    _closeBubble!!.rootGroup?.addView(bubbleBuilder.closeComposeView)
+                    _closeBubble?.rootGroup?.addView(bubbleBuilder.closeComposeView)
                 } else if (bubbleBuilder.closeView != null) {
-                    _closeBubble!!.rootGroup?.addView(bubbleBuilder.closeView)
+                    _closeBubble?.rootGroup?.addView(bubbleBuilder.closeView)
                 }
             }
             if (bubbleBuilder.expandBubbleView != null) {
                 _expandBubble = ExpandBubbleView(context = this)
-                _expandBubble!!.rootGroup?.addView(bubbleBuilder.expandBubbleView)
+                _expandBubble?.rootGroup?.addView(bubbleBuilder.expandBubbleView)
             }
             if (bubbleBuilder.flowKeyboardBubbleView != null) {
                 _flowKeyboardBubble = FlowKeyboardBubbleView(context = this)
-                _flowKeyboardBubble!!.rootGroup?.addView(bubbleBuilder.flowKeyboardBubbleView)
+                _flowKeyboardBubble?.rootGroup?.addView(bubbleBuilder.flowKeyboardBubbleView)
             }
 
             _bubble?.mListener = CustomBubbleListener(
+                context = this,
                 lBubble = _bubble,
                 lCloseBubble = _closeBubble,
-                context = this,
+                distanceToClose = bubbleBuilder.distanceToClose.toDouble(),
+                halfScreen = (sez.fullWidth / 2).toDouble(),
                 isAnimatedToEdge = bubbleBuilder.isAnimateToEdgeEnabled,
+                isAnimatedClose = bubbleBuilder.animatedClose,
                 onCloseBubbleView = {
                     _bubbleStateFlow.value = bubbleState.copy(
                         isBubbleShow = false,
@@ -215,59 +226,103 @@ abstract class BaseBubbleService : Service() {
      * @Param lCloseBubble is the close bubble view
      * @Param isAnimatedToEdge is a boolean value that indicates if the bubble is animated to the edge
      * @Param context is the context of the bubble
+     * @Param halfScreen is the half screen width
+     * @Param distanceToClose is the distance to close the bubble
      */
     private inner class CustomBubbleListener(
+        private val context: Context,
         private val lBubble: BubbleView?,
         private val lCloseBubble: CloseBubbleView?,
         private val isAnimatedToEdge: Boolean = true,
-        private val context: Context,
-
-        //Function Param
+        private val isAnimatedClose: Boolean = false,
+        private val halfScreen: Double,
+        private val distanceToClose: Double,
         private val onCloseBubbleView: () -> Unit,
     ) : BubbleListener {
-        private var _onMove = false
-        private var _fingerPositionX = 0f
-        private var _fingerPositionY = 0f
+
+        private var isMoving = false
+        private var fingerStartX = 0f
+        private var fingerStartY = 0f
+
+        private fun updateCloseBubblePosition(x: Float, y: Float, isAttracted: Boolean) {
+            if(isAnimatedClose.not()) return
+
+            if (lBubble == null || lCloseBubble == null) return
+
+            if(isAttracted) {
+                lCloseBubble.updateUiPosition(positionX = x, positionY = y)
+                return
+            }
+
+            val bubbleDistance = abs(x - halfScreen)
+            val offsetX = DistanceCalculator.newDistanceCloseX(
+                halfScreenWidth = halfScreen,
+                bubbleDistance = bubbleDistance,
+                distanceToClose = distanceToClose
+            ).toFloat()
+
+
+
+            val newX = if (x < halfScreen) {
+                (halfScreen - offsetX).toFloat()
+            } else {
+                (halfScreen + offsetX).toFloat()
+            }
+
+            val newY = lCloseBubble.getAnimationPositionY(lBubble, y)
+
+            lCloseBubble.updateUiPosition(positionX = newX, positionY = newY)
+
+            Log.d(
+                "BaseBubbleService",
+                "updateCloseBubblePosition: $offsetX $x $bubbleDistance $halfScreen $distanceToClose"
+            )
+        }
 
         override fun onFingerDown(x: Float, y: Float) {
-            _fingerPositionX = x
-            _fingerPositionY = y
+            fingerStartX = x
+            fingerStartY = y
             lBubble?.safeCancelAnimation()
-
         }
 
         override fun onFingerMove(x: Float, y: Float) {
-            if (lCloseBubble == null || lBubble == null) return
-            val closeBubbleFlow = _closeBubble?.tryAttractBubble(lBubble, x, y) ?: false
-            if (_onMove.not()) {
-                if (x != _fingerPositionX || y != _fingerPositionY) {
-                    _onMove = true
-                    lCloseBubble.show()
-                }
+            if (lBubble == null || lCloseBubble == null) return
+
+            val isAttracted = _closeBubble?.tryAttractBubble(lBubble, x, y) ?: false
+
+            if (!isMoving && (x != fingerStartX || y != fingerStartY)) {
+                isMoving = true
+                lCloseBubble.show()
             }
-            if (closeBubbleFlow.not()) {
-                lBubble.updateUiPosition(x, y)
+
+            if (!isAttracted || isAnimatedClose) {
+                lBubble.updateUiPosition(x, y) { iX, iY ->
+                    updateCloseBubblePosition(iX.toFloat(), iY.toFloat(), isAttracted)
+                }
             }
         }
 
         override fun onFingerUp(x: Float, y: Float) {
             if (lBubble == null || lCloseBubble == null) return
-            _onMove = false
+
+            isMoving = false
+            lCloseBubble.resetCloseBubblePosition()
             lCloseBubble.remove()
-            if (x == _fingerPositionX && y == _fingerPositionY) {
-                return
-            }
-            if (lCloseBubble.isBubbleInCloseField(lBubble) && lCloseBubble.isFingerInCloseField(
-                    x,
-                    y
-                )
-            ) {
+
+            if (x == fingerStartX && y == fingerStartY) return
+
+            val shouldClose = lCloseBubble.isBubbleInCloseField(lBubble) &&
+                    lCloseBubble.isFingerInCloseField(x, y)
+
+            if (shouldClose) {
                 lBubble.setPosition(0, (sez.fullHeight / 2 - 40))
                 lBubble.updateByNewPosition()
-                this.onCloseBubbleView()
+                onCloseBubbleView()
             } else {
-                if (isAnimatedToEdge) lBubble.snapToEdge {
-                    changeBubbleEdgeSideListener(it)
+                if (isAnimatedToEdge) {
+                    lBubble.snapToEdge { edge ->
+                        changeBubbleEdgeSideListener(edge)
+                    }
                 }
                 onCheckBubbleTouchLeavesListener(x, y)
             }

@@ -133,3 +133,34 @@ Planned and completed features for Bububle-Service:
 * BubbleListener – Listener for touch interactions (drag, move, etc.)
 * NotificationHelper – Helper class to manage foreground notifications
 * BubbleEdgeSide – Enum representing screen edge (LEFT or RIGHT)
+
+## 🗺️ Flow diagram 
+```mermaid
+flowchart TD
+    Start["Service onCreate()"]
+    Start --> StartNotification["startNotificationForeground()"]
+    Start --> ShowBubble["showBubble()"]
+    
+    ShowBubble --> ConfigBubble["configBubble() returns BuBubbleBuilder"]
+
+    ConfigBubble --> BubbleView["Create Bubble View (ImageView)"]
+    ConfigBubble --> CloseView["Create Close View (ImageView)"]
+    ConfigBubble --> BubbleProperties["Set start point, drag, animation, close distance"]
+    ConfigBubble --> BubbleListener["Set BubbleListener (onFingerDown/Move/Up)"]
+
+    StartNotification --> NotificationBuilder["Build Notification with NotificationHelper"]
+    NotificationBuilder --> NotificationChannel["Create Notification Channel"]
+    NotificationChannel --> StartForeground["startForeground(notificationId, builder)"]
+
+    %% User interactions
+    BubbleListener -->|Finger Down| FingerDown["onFingerDown(x, y)"]
+    BubbleListener -->|Finger Move| FingerMove["onFingerMove(x, y)"]
+    BubbleListener -->|Finger Up| FingerUp["onFingerUp(x, y)"]
+
+    %% Other overrides
+    Start --> ClearCache["clearCachedData()"]
+    Start --> ChangeEdgeSide["changeBubbleEdgeSideListener(edgeSide)"]
+    Start --> CheckTouchLeave["onCheckBubbleTouchLeavesListener(x, y)"]
+    Start --> CloseBubble["onCloseBubbleListener()"]
+    Start --> RefreshIcon["refreshBubbleIconStateListener(isClearCachedData)"]
+```

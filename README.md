@@ -9,6 +9,7 @@ Bububle-Service is an Android library that allows you to create and manage float
 ✅ Drag & drop support with edge-snapping  
 ✅ Supports data injection into bubble view  
 ✅ Runs as a foreground service  
+✅ Animated bubble closure
 
 ## 📦 Installation
 
@@ -75,6 +76,7 @@ class TestBubbleService : BaseBubbleService() {
             .bubbleForceDragging(true)
             .bubbleAnimateToEdgeEnabled(true)
             .bubbleDistanceToClose(200)
+            .bubbleCloseBottomDist(100)
             .bubbleAnimatedClose(true)
     }
 

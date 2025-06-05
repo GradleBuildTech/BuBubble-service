@@ -46,7 +46,7 @@ class TestBubbleService : BaseBubbleService() {
             .bubbleAnimateToEdgeEnabled(true)
             .bubbleDistanceToClose(200)
             .bubbleCloseBottomDist(100)
-            .bubbleAnimatedClose(true)
+            .bubbleAnimatedClose(false)
             .bubbleListener(
                 object : BubbleListener {
                     override fun onFingerDown(x: Float, y: Float) { 

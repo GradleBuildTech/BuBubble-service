@@ -145,7 +145,11 @@ abstract class BaseBubbleService : Service() {
                 }
             }
             if (bubbleBuilder.expandBubbleView != null) {
-                _expandBubble = ExpandBubbleView(context = this)
+                _expandBubble = ExpandBubbleView(
+                    context = this,
+                    containCompose = true,
+                    dragToClose = bubbleBuilder.expandDragToClose
+                )
                 _expandBubble?.rootGroup?.addView(bubbleBuilder.expandBubbleView)
             }
             if (bubbleBuilder.flowKeyboardBubbleView != null) {

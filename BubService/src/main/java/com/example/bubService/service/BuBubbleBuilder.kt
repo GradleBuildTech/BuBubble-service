@@ -24,40 +24,53 @@ import com.example.bubService.utils.CLOSE_BOTTOM_DIST
 class BuBubbleBuilder(
     private val context: Context
 ) {
-    ///✨ Config data of bubbleView
+
+    /**
+     * ✨ Config data of bubbleView
+     * This can be a View or a ComposeView.
+     * If it is a View, it will be used as the bubble view.
+     * If it is a ComposeView, it will be used to display the bubble content.
+     * 📃 startPoint is the initial position of the bubble view.
+     * 📃 isAnimateToEdgeEnabled is a flag to enable or disable the animation to the edge of the screen.
+     * 📃 forceDragging is a flag to force the bubble to be dragged.
+     * */
     internal var bubbleView: View? = null
     internal var bubbleComposeView: ComposeView? = null
+    internal var startPoint = Point(0, 0)
+    internal var isAnimateToEdgeEnabled = true
+    internal var listener: BubbleListener? = null
+    internal var forceDragging: Boolean = true
+    // ---------------------------------------------------
 
-    ///✨ Config data of closeBubbleView
+    /**
+     * ✨ Config data of closeBubbleView
+     * This can be a View or a ComposeView.
+     * If it is a View, it will be used as the close button.
+     * If it is a ComposeView, it will be used to display the close button content.
+     * 📃 distanceToClose is the distance to close the bubble view.
+     * 📃 closeBottomDist is the distance from the bottom of the screen to the close button.
+     * 📃 animatedClose is a flag to enable or disable the animation when closing the bubble view.
+     */
     internal var closeView: View? = null
     internal var closeComposeView: ComposeView? = null
-
-    ///📝 Distance to close the bubble
     internal var distanceToClose: Int = 100
-
-    ///📝 Distance to close the bubble from the bottom of the screen
     internal var closeBottomDist: Int = CLOSE_BOTTOM_DIST
+    internal var animatedClose: Boolean = true
+    // ---------------------------------------------------
 
-    ///✨ Config data of expandBubbleView
+
+    /**
+     * ✨ Config data of expandBubbleView
+     * This can be a ComposeView.
+     * It will be used to display the expanded bubble view.
+     * 📃 expandDragToClose is a flag to enable or disable the drag to close feature.
+     */
     internal var expandBubbleView: ComposeView? = null
+    internal var expandDragToClose = false
+    /// ---------------------------------------------------
 
     ///✨ Config data of flowKeyboardBubbleView
     internal var flowKeyboardBubbleView: ComposeView? = null
-
-    ///📝  Position display of bubble
-    internal var startPoint = Point(0, 0)
-
-    ///📝  Animation of bubble
-    internal var isAnimateToEdgeEnabled = true
-
-    ///📝  Config user behavior of bubble
-    internal var listener: BubbleListener? = null
-
-    ///📝  Config dragging of bubble
-    internal var forceDragging: Boolean = true
-
-    ///📝  Animated close
-    internal var animatedClose: Boolean = true
 
 
     /// Handle builder pattern
@@ -89,6 +102,11 @@ class BuBubbleBuilder(
         this.expandBubbleView = ComposeView(context).apply {
             setContent(content)
         }
+        return this
+    }
+
+    fun expandBubbleViewDragToClose(expandDragToClose: Boolean): BuBubbleBuilder {
+        this.expandDragToClose = expandDragToClose
         return this
     }
 

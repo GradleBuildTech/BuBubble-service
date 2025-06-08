@@ -6,6 +6,7 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.example.bubService.animation.AnimationEvent
 import com.example.bubService.animation.SpringAnimationHelper
+import com.example.bubService.event.BubbleListener
 import com.example.bubService.utils.afterMeasured
 import com.example.bubService.utils.applyExpandBubbleViewLayoutParams
 import com.example.bubService.utils.sez
@@ -25,11 +26,13 @@ import com.example.bubService.view.layout.BubbleLayout
  *  *  expandBubbleView.onClose {
  *    // Do something when the bubble view is closed
  *    }
+ * ```
  *  @param containCompose: Boolean = false // Optional parameter to determine if the bubble view should contain a Compose view
  */
 class ExpandBubbleView(
     context: Context,
     containCompose: Boolean = false,
+    dragToClose: Boolean = false,
 ): BubbleInitialization(
     context = context,
     containCompose = containCompose,
@@ -41,6 +44,8 @@ class ExpandBubbleView(
 
     /// The spring animation that is used to animate the bubble
     private var springAnimation: SpringAnimation? = null
+
+    private var mListener: BubbleListener = ExpandBubbleListener(lBubble = this)
 
 
     init {
@@ -54,8 +59,11 @@ class ExpandBubbleView(
             }
             update()
             root?.visibility = View.VISIBLE
+            openCloseAnimation(
+                startY = sez.fullHeight,
+                endY = sez.safeHeight - bubbleHeight
+            )
             isInitial = true
-
         }
     }
 
@@ -84,7 +92,12 @@ class ExpandBubbleView(
         closeComplete?.invoke()
     }
 
-    /// Show the bubble view with a specific position
+    /**
+     * ✨ This function is used to animate the opening and closing of the bubble view.
+     * @param startY: Int - The starting Y position of the bubble view.
+     * @param endY: Int - The ending Y position of the bubble view.
+     * @param onComplete: (() -> Unit)? - An optional callback that is invoked when the animation is complete.
+     * */
     private fun openCloseAnimation(
         startY: Int,
         endY: Int,
@@ -114,5 +127,20 @@ class ExpandBubbleView(
                 }
             }
         )
+    }
+
+    private inner class ExpandBubbleListener(
+        private val lBubble: ExpandBubbleView
+    ) : BubbleListener {
+        override fun onFingerDown(x: Float, y: Float) {
+            // Handle finger down event
+        }
+
+        override fun onFingerMove(x: Float, y: Float) {
+            // Handle finger move event
+        }
+
+        override fun onFingerUp(x: Float, y: Float) {
+        }
     }
 }

@@ -171,6 +171,7 @@ class BubbleView(
         val mIconDeltaX = positionX - rawPointOnDown.x
         val mIconDeltaY = positionY - rawPointOnDown.y
 
+
         newPoint.x = prevPoint.x + mIconDeltaX.toInt()
         newPoint.y = prevPoint.y + mIconDeltaY.toInt()
 

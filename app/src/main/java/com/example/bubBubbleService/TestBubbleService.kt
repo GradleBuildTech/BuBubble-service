@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.bubBubbleService.compose.TestBubbleCompose
 import com.example.bubService.event.BubbleListener
 import com.example.bubService.notification.NotificationHelper
 import com.example.bubService.service.BaseBubbleService
@@ -39,6 +40,7 @@ class TestBubbleService : BaseBubbleService() {
         }
 
         return BuBubbleBuilder(this)
+//            .bubbleComposeView(content = { TestBubbleCompose() })
             .bubbleView(bubbleView)
             .closeView(closeBubbleView)
             .bubbleStartPoint(Point(0, 400))

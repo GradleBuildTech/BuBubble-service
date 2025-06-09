@@ -1,6 +1,8 @@
 package com.example.bubService.view
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.view.MotionEvent
 import android.view.View
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
@@ -65,6 +67,9 @@ class ExpandBubbleView(
             )
             isInitial = true
         }
+        if(dragToClose) {
+           customTouch()
+        }
     }
 
     /// Show the bubble view
@@ -127,6 +132,23 @@ class ExpandBubbleView(
                 }
             }
         )
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun customTouch() {
+        fun handleMovement(event: MotionEvent) {
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    mListener.onFingerDown(event.x, event.y)
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    mListener.onFingerMove(event.x, event.y)
+                }
+                MotionEvent.ACTION_UP -> {
+                    mListener.onFingerUp(event.x, event.y)
+                }
+            }
+        }
     }
 
     private inner class ExpandBubbleListener(

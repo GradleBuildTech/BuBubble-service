@@ -216,13 +216,24 @@ abstract class BaseBubbleService : Service() {
      */
     fun showExpandBubble(isRemoveBubble: Boolean = false) {
         if (isRemoveBubble) {
-            _bubble?.remove()
-            _closeBubble?.remove()
+            hideBubble()
         }
+        _expandBubble?.onOpen()
     }
 
-    fun hideExpandBubble() {
-        _expandBubble?.updateVisibility(false)
+    fun hideExpandBubble(
+        // This value is used to determine whether to show the bubble after closing the expand bubble
+        showBubbleAfterClose: Boolean = true
+    ) {
+        _expandBubble?.onClose(
+            closeComplete = {
+                if(showBubbleAfterClose.not()) {
+                    return@onClose
+                }
+                _bubble?.show()
+                _bubble?.updateBubbleStatus(View.VISIBLE)
+            }
+        )
     }
 
     // ---------------------------------------------------------------------------------
